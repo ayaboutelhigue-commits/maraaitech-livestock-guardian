@@ -53,6 +53,11 @@ const LoginPage = () => {
       setError(isAr ? 'يرجى ملء جميع الحقول' : 'Please fill in all fields');
       return;
     }
+    const validCode = VALID_FARMERS[username.toLowerCase()];
+    if (!validCode || validCode !== farmerCode) {
+      setError(isAr ? 'اسم المستخدم أو رمز المزارع غير صحيح' : 'Invalid username or farmer code');
+      return;
+    }
     localStorage.setItem('maraai_user', JSON.stringify({ username, farmerCode, animalType, wilaya, area }));
     navigate('/dashboard');
   };
