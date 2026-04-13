@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
@@ -7,7 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { User, KeyRound, PawPrint, MapPin } from 'lucide-react';
+import { WILAYA_COMMUNES } from '@/data/wilayaCommunes';
 
 const VALID_FARMERS: Record<string, string> = {
   'farmer1': '1234',
@@ -34,20 +36,31 @@ const LoginPage = () => {
 
   const [username, setUsername] = useState('');
   const [farmerCode, setFarmerCode] = useState('');
-  const [animalType, setAnimalType] = useState('');
+  const [animalTypes, setAnimalTypes] = useState<string[]>([]);
   const [wilaya, setWilaya] = useState('');
-  const [area, setArea] = useState('');
+  const [commune, setCommune] = useState('');
   const [error, setError] = useState('');
 
-  const animalTypes = [
+  const animalOptions = [
     { value: 'cow', label: t('login.animal.cow') },
     { value: 'sheep', label: t('login.animal.sheep') },
     { value: 'horse', label: t('login.animal.horse') },
   ];
 
+  const communes = useMemo(() => {
+    if (!wilaya) return [];
+    return WILAYA_COMMUNES[wilaya] || [];
+  }, [wilaya]);
+
+  const toggleAnimalType = (value: string) => {
+    setAnimalTypes(prev =>
+      prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+    );
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !farmerCode || !animalType || !wilaya || !area) {
+    if (!username || !farmerCode || animalTypes.length === 0 || !wilaya || !commune) {
       setError(t('login.error.empty'));
       return;
     }
@@ -56,7 +69,7 @@ const LoginPage = () => {
       setError(t('login.error.invalid'));
       return;
     }
-    localStorage.setItem('maraai_user', JSON.stringify({ username, farmerCode, animalType, wilaya, area }));
+    localStorage.setItem('maraai_user', JSON.stringify({ username, farmerCode, animalTypes, wilaya, commune }));
     navigate('/dashboard');
   };
 
@@ -114,16 +127,17 @@ const LoginPage = () => {
                   <PawPrint className="h-4 w-4" />
                   {t('login.animal_type')}
                 </Label>
-                <Select value={animalType} onValueChange={setAnimalType}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('login.animal_type.placeholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {animalTypes.map(a => (
-                      <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-4 rounded-md border border-border p-3">
+                  {animalOptions.map(a => (
+                    <label key={a.value} className="flex items-center gap-2 cursor-pointer text-sm">
+                      <Checkbox
+                        checked={animalTypes.includes(a.value)}
+                        onCheckedChange={() => toggleAnimalType(a.value)}
+                      />
+                      {a.label}
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -131,7 +145,7 @@ const LoginPage = () => {
                   <MapPin className="h-4 w-4" />
                   {t('login.wilaya')}
                 </Label>
-                <Select value={wilaya} onValueChange={setWilaya}>
+                <Select value={wilaya} onValueChange={(v) => { setWilaya(v); setCommune(''); }}>
                   <SelectTrigger>
                     <SelectValue placeholder={t('login.wilaya.placeholder')} />
                   </SelectTrigger>
@@ -143,13 +157,24 @@ const LoginPage = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  {t('login.area')}
-                </Label>
-                <Input value={area} onChange={e => setArea(e.target.value)} placeholder={t('login.area.placeholder')} />
-              </div>
+              {wilaya && communes.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    {t('login.area')}
+                  </Label>
+                  <Select value={commune} onValueChange={setCommune}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('login.area.placeholder')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {communes.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <Button type="submit" className="w-full" size="lg">
                 {t('login.submit')}
