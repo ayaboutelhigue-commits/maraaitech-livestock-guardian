@@ -7,7 +7,9 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Navbar from "@/components/Navbar";
 import { lazy, Suspense } from "react";
+import { Navigate } from "react-router-dom";
 
+const LoginPage = lazy(() => import("./pages/LoginPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const MapPage = lazy(() => import("./pages/MapPage"));
@@ -15,6 +17,14 @@ const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
 const AnimalsPage = lazy(() => import("./pages/AnimalsPage"));
 const AlertsPage = lazy(() => import("./pages/AlertsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const user = localStorage.getItem('maraai_user');
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+};
 
 const queryClient = new QueryClient();
 
@@ -35,12 +45,13 @@ const App = () => (
             <Navbar />
             <Suspense fallback={<Loading />}>
               <Routes>
+                <Route path="/login" element={<LoginPage />} />
                 <Route path="/" element={<HomePage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/map" element={<MapPage />} />
-                <Route path="/analytics" element={<AnalyticsPage />} />
-                <Route path="/animals" element={<AnimalsPage />} />
-                <Route path="/alerts" element={<AlertsPage />} />
+                <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
+                <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+                <Route path="/animals" element={<ProtectedRoute><AnimalsPage /></ProtectedRoute>} />
+                <Route path="/alerts" element={<ProtectedRoute><AlertsPage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
