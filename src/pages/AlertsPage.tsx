@@ -1,8 +1,13 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { mockAlerts, mockAnimals } from '@/data/mockData';
 import { suggestDiseases } from '@/utils/diseaseSuggestion';
+import { isDangerous } from '@/utils/urgencyCheck';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Thermometer, Heart, WifiOff, Stethoscope } from 'lucide-react';
+import { AlertTriangle, Thermometer, Heart, WifiOff, Stethoscope, Phone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+const VET_PHONE = '+213555000111'; // Example vet emergency number
+
 const iconMap: Record<string, typeof AlertTriangle> = {
   temp_high: Thermometer, temp_low: Thermometer,
   heart_high: Heart, heart_low: Heart,
@@ -19,17 +24,29 @@ const AlertsPage = () => {
         {mockAlerts.map((alert, i) => {
           const Icon = iconMap[alert.type] || AlertTriangle;
           const isUnread = !alert.read;
+          const animal = mockAnimals.find(a => a.id === alert.animalId);
+          const urgent = animal ? isDangerous(animal) : false;
+          const diseases = animal ? suggestDiseases(animal, lang) : [];
+
           return (
             <motion.div
               key={alert.id}
               initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.06 }}
               className={`flex items-start gap-4 rounded-2xl border p-4 shadow-card transition-colors ${
-                isUnread ? 'border-destructive/30 bg-destructive/5' : 'border-border bg-card'
+                urgent
+                  ? 'border-red-500/60 bg-red-500/10 ring-2 ring-red-500/30'
+                  : isUnread
+                    ? 'border-destructive/30 bg-destructive/5'
+                    : 'border-border bg-card'
               }`}
             >
               <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                isUnread ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground'
+                urgent
+                  ? 'bg-red-500/20 text-red-600 dark:text-red-400 animate-pulse'
+                  : isUnread
+                    ? 'bg-destructive/10 text-destructive'
+                    : 'bg-muted text-muted-foreground'
               }`}>
                 <Icon className="h-5 w-5" />
               </div>
@@ -41,25 +58,40 @@ const AlertsPage = () => {
                 <p className="text-sm text-muted-foreground">
                   {alert.animalName} — {alert.type.includes('offline') ? '' : `${alert.value}${alert.type.includes('temp') ? '°C' : ' BPM'}`}
                 </p>
-                {(() => {
-                  const animal = mockAnimals.find(a => a.id === alert.animalId);
-                  if (!animal) return null;
-                  const diseases = suggestDiseases(animal, lang);
-                  if (diseases.length === 0) return null;
-                  return (
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <Stethoscope className="h-3.5 w-3.5 text-amber-500" />
-                      <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                        {t('alert.possible_disease')}:
+
+                {/* Disease suggestions */}
+                {diseases.length > 0 && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Stethoscope className="h-3.5 w-3.5 text-amber-500" />
+                    <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                      {t('alert.possible_disease')}:
+                    </span>
+                    {diseases.map((d, idx) => (
+                      <span key={idx} className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                        {d}
                       </span>
-                      {diseases.map((d, idx) => (
-                        <span key={idx} className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
-                          {d}
-                        </span>
-                      ))}
+                    ))}
+                  </div>
+                )}
+
+                {/* Urgent vet call banner */}
+                {urgent && (
+                  <div className="mt-3 flex flex-col gap-2 rounded-xl border border-red-500/40 bg-red-500/10 p-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 animate-bounce" />
+                      <span className="text-sm font-bold text-red-700 dark:text-red-300">
+                        {t('alert.urgent')}
+                      </span>
                     </div>
-                  );
-                })()}
+                    <a href={`tel:${VET_PHONE}`}>
+                      <Button variant="destructive" size="sm" className="gap-2">
+                        <Phone className="h-4 w-4" />
+                        {t('alert.call_vet')}
+                      </Button>
+                    </a>
+                  </div>
+                )}
+
                 <p className="mt-1 text-xs text-muted-foreground">
                   {new Date(alert.timestamp).toLocaleString()}
                 </p>
