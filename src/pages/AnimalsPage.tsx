@@ -1,11 +1,13 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { mockAnimals, Animal } from '@/data/mockData';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Pencil, Trash2, X, Download } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Download, Eye } from 'lucide-react';
 
 const AnimalsPage = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [animals, setAnimals] = useState<Animal[]>(mockAnimals);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -21,6 +23,7 @@ const AnimalsPage = () => {
         temperature: 38.5, heartRate: 70, motion: 'idle',
         lat: 36.19 + Math.random() * 0.01, lng: 5.41 + Math.random() * 0.01,
         status: 'online', timestamp: Date.now(),
+        type: 'cow', age: 1, weight: 100, breed: 'Unknown', sex: 'female',
       };
       setAnimals(prev => [...prev, newAnimal]);
     }
@@ -109,6 +112,7 @@ const AnimalsPage = () => {
                 <td className="px-4 py-3 text-foreground">{a.temperature}°C</td>
                 <td className="px-4 py-3 text-foreground">{a.heartRate} BPM</td>
                 <td className="px-4 py-3 text-end">
+                  <button onClick={() => navigate(`/animals/${a.id}`)} className="rounded p-1.5 text-primary hover:bg-primary/10"><Eye className="h-4 w-4" /></button>
                   <button onClick={() => handleEdit(a)} className="rounded p-1.5 text-muted-foreground hover:bg-muted"><Pencil className="h-4 w-4" /></button>
                   <button onClick={() => handleDelete(a.id)} className="rounded p-1.5 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></button>
                 </td>
