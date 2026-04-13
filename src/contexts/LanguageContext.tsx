@@ -1,80 +1,103 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Lang = 'en' | 'ar';
+export type Lang = 'en' | 'ar' | 'fr';
+
+const LANGS: Lang[] = ['en', 'ar', 'fr'];
+const LANG_LABELS: Record<Lang, string> = { en: 'EN', ar: 'ع', fr: 'FR' };
 
 interface LanguageContextType {
   lang: Lang;
   dir: 'ltr' | 'rtl';
   t: (key: string) => string;
   toggleLang: () => void;
+  setLang: (l: Lang) => void;
+  langs: typeof LANGS;
+  langLabel: (l: Lang) => string;
 }
 
 const translations: Record<string, Record<Lang, string>> = {
-  'app.name': { en: 'MaraaiTech', ar: 'مراعيTech' },
-  'nav.home': { en: 'Home', ar: 'الرئيسية' },
-  'nav.dashboard': { en: 'Dashboard', ar: 'لوحة التحكم' },
-  'nav.map': { en: 'Live Map', ar: 'الخريطة الحية' },
-  'nav.analytics': { en: 'Analytics', ar: 'التحليلات' },
-  'nav.animals': { en: 'Animals', ar: 'الحيوانات' },
-  'nav.alerts': { en: 'Alerts', ar: 'التنبيهات' },
-  'home.hero.title': { en: 'Smart Livestock Monitoring', ar: 'مراقبة الماشية الذكية' },
-  'home.hero.subtitle': { en: 'Real-time health tracking, GPS location, and intelligent alerts for your livestock — all in one platform.', ar: 'تتبع صحي فوري، تحديد الموقع الجغرافي، وتنبيهات ذكية لماشيتك — كل ذلك في منصة واحدة.' },
-  'home.hero.cta': { en: 'Start Monitoring', ar: 'ابدأ المراقبة' },
-  'home.features': { en: 'Features', ar: 'المميزات' },
-  'home.how': { en: 'How It Works', ar: 'كيف يعمل' },
-  'feature.gps': { en: 'GPS Tracking', ar: 'تتبع GPS' },
-  'feature.gps.desc': { en: 'Real-time location tracking with movement history', ar: 'تتبع الموقع الفوري مع سجل الحركة' },
-  'feature.health': { en: 'Health Monitoring', ar: 'مراقبة الصحة' },
-  'feature.health.desc': { en: 'Temperature and heart rate monitoring 24/7', ar: 'مراقبة الحرارة ونبض القلب على مدار الساعة' },
-  'feature.alerts': { en: 'Smart Alerts', ar: 'تنبيهات ذكية' },
-  'feature.alerts.desc': { en: 'Instant notifications for abnormal readings', ar: 'إشعارات فورية عند القراءات غير الطبيعية' },
-  'feature.analytics': { en: 'Data Analytics', ar: 'تحليل البيانات' },
-  'feature.analytics.desc': { en: 'Historical data analysis and trends', ar: 'تحليل البيانات التاريخية والاتجاهات' },
-  'how.step1': { en: 'Attach IoT collar to animal', ar: 'تثبيت الطوق الذكي على الحيوان' },
-  'how.step2': { en: 'Data streams to cloud in real-time', ar: 'البيانات تُرسل للسحابة فورياً' },
-  'how.step3': { en: 'Monitor from anywhere on any device', ar: 'راقب من أي مكان وعلى أي جهاز' },
-  'dash.total': { en: 'Total Animals', ar: 'إجمالي الحيوانات' },
-  'dash.online': { en: 'Online', ar: 'متصل' },
-  'dash.offline': { en: 'Offline', ar: 'غير متصل' },
-  'dash.alerts': { en: 'Active Alerts', ar: 'تنبيهات نشطة' },
-  'status.online': { en: 'Online', ar: 'متصل' },
-  'status.offline': { en: 'Offline', ar: 'غير متصل' },
-  'status.active': { en: 'Active', ar: 'نشط' },
-  'status.idle': { en: 'Idle', ar: 'خامل' },
-  'temp': { en: 'Temperature', ar: 'الحرارة' },
-  'heart': { en: 'Heart Rate', ar: 'نبض القلب' },
-  'motion': { en: 'Motion', ar: 'الحركة' },
-  'animal.name': { en: 'Name', ar: 'الاسم' },
-  'animal.id': { en: 'Animal ID', ar: 'رقم الحيوان' },
-  'animal.collar': { en: 'Collar ID', ar: 'رقم الطوق' },
-  'animal.add': { en: 'Add Animal', ar: 'إضافة حيوان' },
-  'animal.edit': { en: 'Edit', ar: 'تعديل' },
-  'animal.delete': { en: 'Delete', ar: 'حذف' },
-  'animal.save': { en: 'Save', ar: 'حفظ' },
-  'animal.cancel': { en: 'Cancel', ar: 'إلغاء' },
-  'alert.temp_high': { en: 'High Temperature', ar: 'حرارة مرتفعة' },
-  'alert.temp_low': { en: 'Low Temperature', ar: 'حرارة منخفضة' },
-  'alert.heart_high': { en: 'High Heart Rate', ar: 'نبض مرتفع' },
-  'alert.heart_low': { en: 'Low Heart Rate', ar: 'نبض منخفض' },
-  'alert.offline': { en: 'Device Offline', ar: 'الجهاز غير متصل' },
-  'analytics.temp_over_time': { en: 'Temperature Over Time', ar: 'الحرارة عبر الزمن' },
-  'analytics.heart_over_time': { en: 'Heart Rate Over Time', ar: 'نبض القلب عبر الزمن' },
-  'analytics.activity': { en: 'Activity Levels', ar: 'مستويات النشاط' },
-  'analytics.filter': { en: 'Filter by Animal', ar: 'تصفية حسب الحيوان' },
-  'analytics.all': { en: 'All Animals', ar: 'كل الحيوانات' },
-  'export': { en: 'Export CSV', ar: 'تصدير CSV' },
-  'dark_mode': { en: 'Dark Mode', ar: 'الوضع الداكن' },
-  'login': { en: 'Login', ar: 'تسجيل الدخول' },
-  'signup': { en: 'Sign Up', ar: 'إنشاء حساب' },
-  'email': { en: 'Email', ar: 'البريد الإلكتروني' },
-  'password': { en: 'Password', ar: 'كلمة المرور' },
-  'logout': { en: 'Logout', ar: 'تسجيل الخروج' },
+  'app.name': { en: 'MaraaiTech', ar: 'مراعيTech', fr: 'MaraaiTech' },
+  'nav.home': { en: 'Home', ar: 'الرئيسية', fr: 'Accueil' },
+  'nav.dashboard': { en: 'Dashboard', ar: 'لوحة التحكم', fr: 'Tableau de bord' },
+  'nav.map': { en: 'Live Map', ar: 'الخريطة الحية', fr: 'Carte en direct' },
+  'nav.analytics': { en: 'Analytics', ar: 'التحليلات', fr: 'Analytique' },
+  'nav.animals': { en: 'Animals', ar: 'الحيوانات', fr: 'Animaux' },
+  'nav.alerts': { en: 'Alerts', ar: 'التنبيهات', fr: 'Alertes' },
+  'home.hero.title': { en: 'Smart Livestock Monitoring', ar: 'مراقبة الماشية الذكية', fr: 'Surveillance intelligente du bétail' },
+  'home.hero.subtitle': { en: 'Real-time health tracking, GPS location, and intelligent alerts for your livestock — all in one platform.', ar: 'تتبع صحي فوري، تحديد الموقع الجغرافي، وتنبيهات ذكية لماشيتك — كل ذلك في منصة واحدة.', fr: 'Suivi de santé en temps réel, localisation GPS et alertes intelligentes pour votre bétail — tout en une seule plateforme.' },
+  'home.hero.cta': { en: 'Start Monitoring', ar: 'ابدأ المراقبة', fr: 'Commencer la surveillance' },
+  'home.features': { en: 'Features', ar: 'المميزات', fr: 'Fonctionnalités' },
+  'home.how': { en: 'How It Works', ar: 'كيف يعمل', fr: 'Comment ça marche' },
+  'feature.gps': { en: 'GPS Tracking', ar: 'تتبع GPS', fr: 'Suivi GPS' },
+  'feature.gps.desc': { en: 'Real-time location tracking with movement history', ar: 'تتبع الموقع الفوري مع سجل الحركة', fr: 'Suivi de localisation en temps réel avec historique des mouvements' },
+  'feature.health': { en: 'Health Monitoring', ar: 'مراقبة الصحة', fr: 'Surveillance de la santé' },
+  'feature.health.desc': { en: 'Temperature and heart rate monitoring 24/7', ar: 'مراقبة الحرارة ونبض القلب على مدار الساعة', fr: 'Surveillance de la température et du rythme cardiaque 24h/24' },
+  'feature.alerts': { en: 'Smart Alerts', ar: 'تنبيهات ذكية', fr: 'Alertes intelligentes' },
+  'feature.alerts.desc': { en: 'Instant notifications for abnormal readings', ar: 'إشعارات فورية عند القراءات غير الطبيعية', fr: 'Notifications instantanées pour les lectures anormales' },
+  'feature.analytics': { en: 'Data Analytics', ar: 'تحليل البيانات', fr: 'Analyse de données' },
+  'feature.analytics.desc': { en: 'Historical data analysis and trends', ar: 'تحليل البيانات التاريخية والاتجاهات', fr: 'Analyse des données historiques et tendances' },
+  'how.step1': { en: 'Attach IoT collar to animal', ar: 'تثبيت الطوق الذكي على الحيوان', fr: 'Fixer le collier IoT sur l\'animal' },
+  'how.step2': { en: 'Data streams to cloud in real-time', ar: 'البيانات تُرسل للسحابة فورياً', fr: 'Les données sont envoyées au cloud en temps réel' },
+  'how.step3': { en: 'Monitor from anywhere on any device', ar: 'راقب من أي مكان وعلى أي جهاز', fr: 'Surveillez de n\'importe où sur n\'importe quel appareil' },
+  'dash.total': { en: 'Total Animals', ar: 'إجمالي الحيوانات', fr: 'Total des animaux' },
+  'dash.online': { en: 'Online', ar: 'متصل', fr: 'En ligne' },
+  'dash.offline': { en: 'Offline', ar: 'غير متصل', fr: 'Hors ligne' },
+  'dash.alerts': { en: 'Active Alerts', ar: 'تنبيهات نشطة', fr: 'Alertes actives' },
+  'status.online': { en: 'Online', ar: 'متصل', fr: 'En ligne' },
+  'status.offline': { en: 'Offline', ar: 'غير متصل', fr: 'Hors ligne' },
+  'status.active': { en: 'Active', ar: 'نشط', fr: 'Actif' },
+  'status.idle': { en: 'Idle', ar: 'خامل', fr: 'Inactif' },
+  'temp': { en: 'Temperature', ar: 'الحرارة', fr: 'Température' },
+  'heart': { en: 'Heart Rate', ar: 'نبض القلب', fr: 'Rythme cardiaque' },
+  'motion': { en: 'Motion', ar: 'الحركة', fr: 'Mouvement' },
+  'animal.name': { en: 'Name', ar: 'الاسم', fr: 'Nom' },
+  'animal.id': { en: 'Animal ID', ar: 'رقم الحيوان', fr: 'ID Animal' },
+  'animal.collar': { en: 'Collar ID', ar: 'رقم الطوق', fr: 'ID Collier' },
+  'animal.add': { en: 'Add Animal', ar: 'إضافة حيوان', fr: 'Ajouter un animal' },
+  'animal.edit': { en: 'Edit', ar: 'تعديل', fr: 'Modifier' },
+  'animal.delete': { en: 'Delete', ar: 'حذف', fr: 'Supprimer' },
+  'animal.save': { en: 'Save', ar: 'حفظ', fr: 'Enregistrer' },
+  'animal.cancel': { en: 'Cancel', ar: 'إلغاء', fr: 'Annuler' },
+  'alert.temp_high': { en: 'High Temperature', ar: 'حرارة مرتفعة', fr: 'Température élevée' },
+  'alert.temp_low': { en: 'Low Temperature', ar: 'حرارة منخفضة', fr: 'Température basse' },
+  'alert.heart_high': { en: 'High Heart Rate', ar: 'نبض مرتفع', fr: 'Rythme cardiaque élevé' },
+  'alert.heart_low': { en: 'Low Heart Rate', ar: 'نبض منخفض', fr: 'Rythme cardiaque bas' },
+  'alert.offline': { en: 'Device Offline', ar: 'الجهاز غير متصل', fr: 'Appareil hors ligne' },
+  'analytics.temp_over_time': { en: 'Temperature Over Time', ar: 'الحرارة عبر الزمن', fr: 'Température au fil du temps' },
+  'analytics.heart_over_time': { en: 'Heart Rate Over Time', ar: 'نبض القلب عبر الزمن', fr: 'Rythme cardiaque au fil du temps' },
+  'analytics.activity': { en: 'Activity Levels', ar: 'مستويات النشاط', fr: 'Niveaux d\'activité' },
+  'analytics.filter': { en: 'Filter by Animal', ar: 'تصفية حسب الحيوان', fr: 'Filtrer par animal' },
+  'analytics.all': { en: 'All Animals', ar: 'كل الحيوانات', fr: 'Tous les animaux' },
+  'export': { en: 'Export CSV', ar: 'تصدير CSV', fr: 'Exporter CSV' },
+  'dark_mode': { en: 'Dark Mode', ar: 'الوضع الداكن', fr: 'Mode sombre' },
+  'login': { en: 'Login', ar: 'تسجيل الدخول', fr: 'Connexion' },
+  'signup': { en: 'Sign Up', ar: 'إنشاء حساب', fr: 'S\'inscrire' },
+  'email': { en: 'Email', ar: 'البريد الإلكتروني', fr: 'E-mail' },
+  'password': { en: 'Password', ar: 'كلمة المرور', fr: 'Mot de passe' },
+  'logout': { en: 'Logout', ar: 'تسجيل الخروج', fr: 'Déconnexion' },
+  'login.title': { en: 'Log in to access the monitoring dashboard', ar: 'سجل الدخول للوصول إلى لوحة المراقبة', fr: 'Connectez-vous pour accéder au tableau de bord' },
+  'login.username': { en: 'Username', ar: 'اسم المستخدم', fr: 'Nom d\'utilisateur' },
+  'login.username.placeholder': { en: 'Enter your username', ar: 'أدخل اسم المستخدم', fr: 'Entrez votre nom d\'utilisateur' },
+  'login.code': { en: 'Farmer Code', ar: 'رمز المزارع', fr: 'Code agriculteur' },
+  'login.code.placeholder': { en: 'Enter your farmer code', ar: 'أدخل رمز المزارع', fr: 'Entrez votre code agriculteur' },
+  'login.animal_type': { en: 'Animal Type', ar: 'نوع الحيوانات', fr: 'Type d\'animal' },
+  'login.animal_type.placeholder': { en: 'Select type', ar: 'اختر النوع', fr: 'Choisir le type' },
+  'login.animal.cow': { en: 'Cows', ar: 'أبقار', fr: 'Vaches' },
+  'login.animal.sheep': { en: 'Sheep', ar: 'أغنام', fr: 'Moutons' },
+  'login.animal.horse': { en: 'Horses', ar: 'خيول', fr: 'Chevaux' },
+  'login.wilaya': { en: 'Wilaya', ar: 'الولاية', fr: 'Wilaya' },
+  'login.wilaya.placeholder': { en: 'Select wilaya', ar: 'اختر الولاية', fr: 'Choisir la wilaya' },
+  'login.area': { en: 'Area / Municipality', ar: 'المنطقة / البلدية', fr: 'Zone / Commune' },
+  'login.area.placeholder': { en: 'Enter your area name', ar: 'أدخل اسم منطقتك', fr: 'Entrez le nom de votre zone' },
+  'login.submit': { en: 'Access Dashboard', ar: 'دخول', fr: 'Accéder au tableau de bord' },
+  'login.error.empty': { en: 'Please fill in all fields', ar: 'يرجى ملء جميع الحقول', fr: 'Veuillez remplir tous les champs' },
+  'login.error.invalid': { en: 'Invalid username or farmer code', ar: 'اسم المستخدم أو رمز المزارع غير صحيح', fr: 'Nom d\'utilisateur ou code agriculteur invalide' },
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('lang') as Lang) || 'en');
+  const [lang, setLangState] = useState<Lang>(() => (localStorage.getItem('lang') as Lang) || 'en');
   const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
   useEffect(() => {
@@ -84,10 +107,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   }, [lang, dir]);
 
   const t = (key: string) => translations[key]?.[lang] || key;
-  const toggleLang = () => setLang(l => l === 'en' ? 'ar' : 'en');
+  const toggleLang = () => {
+    const idx = LANGS.indexOf(lang);
+    setLangState(LANGS[(idx + 1) % LANGS.length]);
+  };
+  const setLang = (l: Lang) => setLangState(l);
 
   return (
-    <LanguageContext.Provider value={{ lang, dir, t, toggleLang }}>
+    <LanguageContext.Provider value={{ lang, dir, t, toggleLang, setLang, langs: LANGS, langLabel: (l) => LANG_LABELS[l] }}>
       {children}
     </LanguageContext.Provider>
   );
