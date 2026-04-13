@@ -10,7 +10,7 @@ const iconMap: Record<string, typeof AlertTriangle> = {
 };
 
 const AlertsPage = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   return (
     <div className="container mx-auto px-4 py-8">
