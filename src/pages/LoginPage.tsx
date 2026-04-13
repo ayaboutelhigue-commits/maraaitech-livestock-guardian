@@ -29,7 +29,7 @@ const WILAYAS = [
 ];
 
 const LoginPage = () => {
-  const { t, lang } = useLanguage();
+  const { t, lang, toggleLang } = useLanguage();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState('');
@@ -39,23 +39,21 @@ const LoginPage = () => {
   const [area, setArea] = useState('');
   const [error, setError] = useState('');
 
-  const isAr = lang === 'ar';
-
   const animalTypes = [
-    { value: 'cow', label: isAr ? 'أبقار' : 'Cows' },
-    { value: 'sheep', label: isAr ? 'أغنام' : 'Sheep' },
-    { value: 'horse', label: isAr ? 'خيول' : 'Horses' },
+    { value: 'cow', label: t('login.animal.cow') },
+    { value: 'sheep', label: t('login.animal.sheep') },
+    { value: 'horse', label: t('login.animal.horse') },
   ];
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !farmerCode || !animalType || !wilaya || !area) {
-      setError(isAr ? 'يرجى ملء جميع الحقول' : 'Please fill in all fields');
+      setError(t('login.error.empty'));
       return;
     }
     const validCode = VALID_FARMERS[username.toLowerCase()];
     if (!validCode || validCode !== farmerCode) {
-      setError(isAr ? 'اسم المستخدم أو رمز المزارع غير صحيح' : 'Invalid username or farmer code');
+      setError(t('login.error.invalid'));
       return;
     }
     localStorage.setItem('maraai_user', JSON.stringify({ username, farmerCode, animalType, wilaya, area }));
@@ -72,14 +70,19 @@ const LoginPage = () => {
       >
         <Card className="border-primary/20 shadow-xl">
           <CardHeader className="text-center space-y-2">
+            <div className="flex justify-end">
+              <button onClick={toggleLang} className="rounded-lg px-2 py-1 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                {lang === 'en' ? 'FR' : lang === 'fr' ? 'ع' : 'EN'}
+              </button>
+            </div>
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
               <PawPrint className="h-7 w-7 text-primary" />
             </div>
             <CardTitle className="text-2xl font-bold text-primary">
-              {isAr ? 'مراعيTech' : 'MaraaiTech'}
+              {t('app.name')}
             </CardTitle>
             <CardDescription>
-              {isAr ? 'سجل الدخول للوصول إلى لوحة المراقبة' : 'Log in to access the monitoring dashboard'}
+              {t('login.title')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -90,44 +93,30 @@ const LoginPage = () => {
                 </div>
               )}
 
-              {/* Username */}
               <div className="space-y-2">
                 <Label htmlFor="username" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  {isAr ? 'اسم المستخدم' : 'Username'}
+                  {t('login.username')}
                 </Label>
-                <Input
-                  id="username"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  placeholder={isAr ? 'أدخل اسم المستخدم' : 'Enter your username'}
-                />
+                <Input id="username" value={username} onChange={e => setUsername(e.target.value)} placeholder={t('login.username.placeholder')} />
               </div>
 
-              {/* Farmer Code */}
               <div className="space-y-2">
                 <Label htmlFor="code" className="flex items-center gap-2">
                   <KeyRound className="h-4 w-4" />
-                  {isAr ? 'رمز المزارع' : 'Farmer Code'}
+                  {t('login.code')}
                 </Label>
-                <Input
-                  id="code"
-                  type="password"
-                  value={farmerCode}
-                  onChange={e => setFarmerCode(e.target.value)}
-                  placeholder={isAr ? 'أدخل رمز المزارع' : 'Enter your farmer code'}
-                />
+                <Input id="code" type="password" value={farmerCode} onChange={e => setFarmerCode(e.target.value)} placeholder={t('login.code.placeholder')} />
               </div>
 
-              {/* Animal Type */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <PawPrint className="h-4 w-4" />
-                  {isAr ? 'نوع الحيوانات' : 'Animal Type'}
+                  {t('login.animal_type')}
                 </Label>
                 <Select value={animalType} onValueChange={setAnimalType}>
                   <SelectTrigger>
-                    <SelectValue placeholder={isAr ? 'اختر النوع' : 'Select type'} />
+                    <SelectValue placeholder={t('login.animal_type.placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {animalTypes.map(a => (
@@ -137,15 +126,14 @@ const LoginPage = () => {
                 </Select>
               </div>
 
-              {/* Wilaya */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  {isAr ? 'الولاية' : 'Wilaya'}
+                  {t('login.wilaya')}
                 </Label>
                 <Select value={wilaya} onValueChange={setWilaya}>
                   <SelectTrigger>
-                    <SelectValue placeholder={isAr ? 'اختر الولاية' : 'Select wilaya'} />
+                    <SelectValue placeholder={t('login.wilaya.placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {WILAYAS.map((w, i) => (
@@ -155,21 +143,16 @@ const LoginPage = () => {
                 </Select>
               </div>
 
-              {/* Area */}
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  {isAr ? 'المنطقة / البلدية' : 'Area / Municipality'}
+                  {t('login.area')}
                 </Label>
-                <Input
-                  value={area}
-                  onChange={e => setArea(e.target.value)}
-                  placeholder={isAr ? 'أدخل اسم منطقتك' : 'Enter your area name'}
-                />
+                <Input value={area} onChange={e => setArea(e.target.value)} placeholder={t('login.area.placeholder')} />
               </div>
 
               <Button type="submit" className="w-full" size="lg">
-                {isAr ? 'دخول' : 'Access Dashboard'}
+                {t('login.submit')}
               </Button>
             </form>
           </CardContent>
