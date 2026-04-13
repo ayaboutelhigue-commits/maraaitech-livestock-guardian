@@ -9,6 +9,17 @@ export interface Animal {
   lng: number;
   status: 'online' | 'offline';
   timestamp: number;
+  type: 'cow' | 'sheep' | 'horse';
+  age: number; // years
+  weight: number; // kg
+  breed: string;
+  sex: 'male' | 'female';
+  pregnancy?: {
+    pregnant: boolean;
+    monthsPregnant?: number; // 1-9
+    expectedDueDate?: string;
+    status?: 'early' | 'mid' | 'late' | 'overdue';
+  };
 }
 
 export interface Alert {
@@ -22,12 +33,12 @@ export interface Alert {
 }
 
 export const mockAnimals: Animal[] = [
-  { id: 'a1', name: 'Bessie', collarId: 'C-001', temperature: 38.5, heartRate: 72, motion: 'active', lat: 36.19, lng: 5.41, status: 'online', timestamp: Date.now() },
-  { id: 'a2', name: 'Daisy', collarId: 'C-002', temperature: 41.2, heartRate: 68, motion: 'idle', lat: 36.192, lng: 5.413, status: 'online', timestamp: Date.now() },
-  { id: 'a3', name: 'Clover', collarId: 'C-003', temperature: 39.1, heartRate: 95, motion: 'active', lat: 36.188, lng: 5.408, status: 'online', timestamp: Date.now() },
-  { id: 'a4', name: 'Buttercup', collarId: 'C-004', temperature: 34.5, heartRate: 60, motion: 'idle', lat: 36.195, lng: 5.42, status: 'offline', timestamp: Date.now() - 600000 },
-  { id: 'a5', name: 'Rosie', collarId: 'C-005', temperature: 38.8, heartRate: 75, motion: 'active', lat: 36.185, lng: 5.405, status: 'online', timestamp: Date.now() },
-  { id: 'a6', name: 'Luna', collarId: 'C-006', temperature: 39.5, heartRate: 110, motion: 'active', lat: 36.191, lng: 5.418, status: 'online', timestamp: Date.now() },
+  { id: 'a1', name: 'Bessie', collarId: 'C-001', temperature: 38.5, heartRate: 72, motion: 'active', lat: 36.19, lng: 5.41, status: 'online', timestamp: Date.now(), type: 'cow', age: 4, weight: 520, breed: 'Holstein', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 7, expectedDueDate: '2026-06-15', status: 'late' } },
+  { id: 'a2', name: 'Daisy', collarId: 'C-002', temperature: 41.2, heartRate: 68, motion: 'idle', lat: 36.192, lng: 5.413, status: 'online', timestamp: Date.now(), type: 'cow', age: 3, weight: 480, breed: 'Montbéliarde', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 3, expectedDueDate: '2026-10-20', status: 'early' } },
+  { id: 'a3', name: 'Clover', collarId: 'C-003', temperature: 39.1, heartRate: 95, motion: 'active', lat: 36.188, lng: 5.408, status: 'online', timestamp: Date.now(), type: 'sheep', age: 2, weight: 65, breed: 'Ouled Djellal', sex: 'female', pregnancy: { pregnant: false } },
+  { id: 'a4', name: 'Buttercup', collarId: 'C-004', temperature: 34.5, heartRate: 60, motion: 'idle', lat: 36.195, lng: 5.42, status: 'offline', timestamp: Date.now() - 600000, type: 'cow', age: 5, weight: 550, breed: 'Charolais', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 5, expectedDueDate: '2026-08-10', status: 'mid' } },
+  { id: 'a5', name: 'Rosie', collarId: 'C-005', temperature: 38.8, heartRate: 75, motion: 'active', lat: 36.185, lng: 5.405, status: 'online', timestamp: Date.now(), type: 'horse', age: 6, weight: 430, breed: 'Barbe', sex: 'male' },
+  { id: 'a6', name: 'Luna', collarId: 'C-006', temperature: 39.5, heartRate: 110, motion: 'active', lat: 36.191, lng: 5.418, status: 'online', timestamp: Date.now(), type: 'sheep', age: 1, weight: 45, breed: 'Rembi', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 4, expectedDueDate: '2026-08-25', status: 'mid' } },
 ];
 
 export const mockAlerts: Alert[] = [
