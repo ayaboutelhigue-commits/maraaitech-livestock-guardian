@@ -16,6 +16,7 @@ const MapPage = lazy(() => import("./pages/MapPage"));
 const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
 const AnimalsPage = lazy(() => import("./pages/AnimalsPage"));
 const AlertsPage = lazy(() => import("./pages/AlertsPage"));
+const AnimalProfilePage = lazy(() => import("./pages/AnimalProfilePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
                 <Route path="/animals" element={<ProtectedRoute><AnimalsPage /></ProtectedRoute>} />
+                <Route path="/animals/:id" element={<ProtectedRoute><AnimalProfilePage /></ProtectedRoute>} />
                 <Route path="/alerts" element={<ProtectedRoute><AlertsPage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
