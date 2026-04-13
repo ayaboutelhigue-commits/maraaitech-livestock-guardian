@@ -1,8 +1,8 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import { mockAlerts } from '@/data/mockData';
+import { mockAlerts, mockAnimals } from '@/data/mockData';
+import { suggestDiseases } from '@/utils/diseaseSuggestion';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Thermometer, Heart, WifiOff } from 'lucide-react';
-
+import { AlertTriangle, Thermometer, Heart, WifiOff, Stethoscope } from 'lucide-react';
 const iconMap: Record<string, typeof AlertTriangle> = {
   temp_high: Thermometer, temp_low: Thermometer,
   heart_high: Heart, heart_low: Heart,
@@ -41,6 +41,25 @@ const AlertsPage = () => {
                 <p className="text-sm text-muted-foreground">
                   {alert.animalName} — {alert.type.includes('offline') ? '' : `${alert.value}${alert.type.includes('temp') ? '°C' : ' BPM'}`}
                 </p>
+                {(() => {
+                  const animal = mockAnimals.find(a => a.id === alert.animalId);
+                  if (!animal) return null;
+                  const diseases = suggestDiseases(animal, lang);
+                  if (diseases.length === 0) return null;
+                  return (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <Stethoscope className="h-3.5 w-3.5 text-amber-500" />
+                      <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                        {t('alert.possible_disease')}:
+                      </span>
+                      {diseases.map((d, idx) => (
+                        <span key={idx} className="rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })()}
                 <p className="mt-1 text-xs text-muted-foreground">
                   {new Date(alert.timestamp).toLocaleString()}
                 </p>
