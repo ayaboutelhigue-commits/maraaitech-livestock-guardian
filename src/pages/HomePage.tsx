@@ -1,7 +1,8 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
-import { MapPin, Heart, Thermometer, Bell, Cpu, Smartphone, Wifi } from 'lucide-react';
+import { MapPin, Heart, Thermometer, Bell, Cpu, Smartphone, Wifi, Play, Pause } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useRef, useState } from 'react';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
 
