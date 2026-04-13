@@ -1,8 +1,8 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { motion } from 'framer-motion';
-import { Home, LayoutDashboard, Map, BarChart3, PawPrint, Bell, Sun, Moon, Languages, Menu, X } from 'lucide-react';
+import { Home, LayoutDashboard, Map, BarChart3, PawPrint, Bell, Sun, Moon, Languages, Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
 const navItems = [
@@ -18,7 +18,16 @@ const Navbar = () => {
   const { t, toggleLang, lang } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isLoggedIn = !!localStorage.getItem('maraai_user');
+
+  const handleLogout = () => {
+    localStorage.removeItem('maraai_user');
+    navigate('/login');
+  };
+
+  if (location.pathname === '/login') return null;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
@@ -63,6 +72,11 @@ const Navbar = () => {
           <button onClick={toggleTheme} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Toggle Theme">
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
+          {isLoggedIn && (
+            <button onClick={handleLogout} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" title={lang === 'ar' ? 'تسجيل الخروج' : 'Logout'}>
+              <LogOut className="h-4 w-4" />
+            </button>
+          )}
           <button onClick={() => setMobileOpen(!mobileOpen)} className="rounded-lg p-2 text-muted-foreground md:hidden">
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
