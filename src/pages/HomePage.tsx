@@ -1,7 +1,8 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
-import { MapPin, Heart, Thermometer, Bell, Cpu, Smartphone, Wifi } from 'lucide-react';
+import { MapPin, Heart, Thermometer, Bell, Cpu, Smartphone, Wifi, Play, Pause } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useRef, useState } from 'react';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
 
@@ -21,37 +22,63 @@ const HomePage = () => {
     { icon: Smartphone, text: t('how.step3') },
   ];
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+
+  const toggleVideo = () => {
+    if (videoRef.current) {
+      if (isPlaying) videoRef.current.pause();
+      else videoRef.current.play();
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   return (
     <div className="min-h-screen">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-primary py-24 md:py-36">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute -top-1/2 -right-1/4 h-[600px] w-[600px] rounded-full bg-accent" />
-          <div className="absolute -bottom-1/3 -left-1/4 h-[400px] w-[400px] rounded-full bg-primary-foreground" />
-        </div>
-        <div className="container relative mx-auto px-4 text-center">
-          <motion.h1
-            initial="hidden" animate="visible" variants={fadeUp}
-            transition={{ duration: 0.6 }}
-            className="mb-6 text-4xl font-extrabold text-primary-foreground md:text-6xl"
+      {/* Welcome Video Hero */}
+      <section className="relative overflow-hidden bg-primary">
+        <div className="relative h-[70vh] md:h-[80vh] w-full">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover"
           >
-            {t('home.hero.title')}
-          </motion.h1>
-          <motion.p
-            initial="hidden" animate="visible" variants={fadeUp}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            className="mx-auto mb-10 max-w-2xl text-lg text-primary-foreground/80"
-          >
-            {t('home.hero.subtitle')}
-          </motion.p>
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.3 }}>
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-xl bg-accent px-8 py-3.5 text-base font-semibold text-accent-foreground shadow-elevated transition-transform hover:scale-105"
+            <source src="/videos/welcome.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+            <motion.h1
+              initial="hidden" animate="visible" variants={fadeUp}
+              transition={{ duration: 0.6 }}
+              className="mb-4 text-4xl font-extrabold text-white md:text-6xl drop-shadow-lg"
             >
-              {t('home.hero.cta')}
-            </Link>
-          </motion.div>
+              {t('home.hero.title')}
+            </motion.h1>
+            <motion.p
+              initial="hidden" animate="visible" variants={fadeUp}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="mx-auto mb-8 max-w-2xl text-lg text-white/90 drop-shadow"
+            >
+              {t('home.hero.subtitle')}
+            </motion.p>
+            <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.6, delay: 0.3 }}>
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 rounded-xl bg-accent px-8 py-3.5 text-base font-semibold text-accent-foreground shadow-elevated transition-transform hover:scale-105"
+              >
+                {t('home.hero.cta')}
+              </Link>
+            </motion.div>
+          </div>
+          <button
+            onClick={toggleVideo}
+            className="absolute bottom-6 right-6 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70"
+          >
+            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </button>
         </div>
       </section>
 
