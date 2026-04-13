@@ -66,8 +66,8 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button onClick={toggleLang} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Toggle Language">
-            <Languages className="h-4 w-4" />
+          <button onClick={toggleLang} className="rounded-lg px-2 py-1.5 text-xs font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Toggle Language">
+            {lang === 'en' ? 'FR' : lang === 'fr' ? 'ع' : 'EN'}
           </button>
           <button onClick={toggleTheme} className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Toggle Theme">
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
