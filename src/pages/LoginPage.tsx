@@ -9,6 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { User, KeyRound, PawPrint, MapPin } from 'lucide-react';
 
+const VALID_FARMERS: Record<string, string> = {
+  'farmer1': '1234',
+  'farmer2': '5678',
+  'admin': '0000',
+};
+
 const WILAYAS = [
   'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Béjaïa', 'Biskra',
   'Béchar', 'Blida', 'Bouira', 'Tamanrasset', 'Tébessa', 'Tlemcen', 'Tiaret',
