@@ -63,6 +63,8 @@ const translations: Record<string, Record<Lang, string>> = {
   'alert.heart_high': { en: 'High Heart Rate', ar: 'نبض مرتفع', fr: 'Rythme cardiaque élevé' },
   'alert.heart_low': { en: 'Low Heart Rate', ar: 'نبض منخفض', fr: 'Rythme cardiaque bas' },
   'alert.offline': { en: 'Device Offline', ar: 'الجهاز غير متصل', fr: 'Appareil hors ligne' },
+  'alert.possible_disease': { en: 'Possible disease', ar: 'مرض محتمل', fr: 'Maladie possible' },
+  'alert.suggestion_note': { en: 'Suggestion only, not a diagnosis', ar: 'اقتراح فقط وليس تشخيصاً', fr: 'Suggestion uniquement, pas un diagnostic' },
   'analytics.temp_over_time': { en: 'Temperature Over Time', ar: 'الحرارة عبر الزمن', fr: 'Température au fil du temps' },
   'analytics.heart_over_time': { en: 'Heart Rate Over Time', ar: 'نبض القلب عبر الزمن', fr: 'Rythme cardiaque au fil du temps' },
   'analytics.activity': { en: 'Activity Levels', ar: 'مستويات النشاط', fr: 'Niveaux d\'activité' },
