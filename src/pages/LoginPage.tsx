@@ -88,8 +88,7 @@ const LoginPage = () => {
                 {lang === 'en' ? 'FR' : lang === 'fr' ? 'ع' : 'EN'}
               </button>
             </div>
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-              <PawPrint className="h-7 w-7 text-primary" />
+            <img src={(await import('@/assets/logo.png')).default} alt="MaraaiTech" className="mx-auto h-20 w-20 object-contain" />
             </div>
             <CardTitle className="text-2xl font-bold text-primary">
               {t('app.name')}

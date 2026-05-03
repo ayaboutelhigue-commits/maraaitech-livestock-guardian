@@ -4,6 +4,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { motion } from 'framer-motion';
 import { Home, LayoutDashboard, Map, BarChart3, PawPrint, Bell, Sun, Moon, Languages, Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
+import logo from '@/assets/logo.png';
 
 const navItems = [
   { key: 'nav.home', path: '/', icon: Home },
@@ -33,9 +34,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <PawPrint className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="MaraaiTech" width={36} height={36} className="h-9 w-9 object-contain" />
           <span className="text-xl font-bold text-foreground">{t('app.name')}</span>
         </Link>
 
