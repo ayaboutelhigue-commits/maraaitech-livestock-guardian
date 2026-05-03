@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { User, KeyRound, PawPrint, MapPin } from 'lucide-react';
+import logo from '@/assets/logo.png';
 import { WILAYA_COMMUNES } from '@/data/wilayaCommunes';
 
 const VALID_FARMERS: Record<string, string> = {
@@ -88,8 +89,7 @@ const LoginPage = () => {
                 {lang === 'en' ? 'FR' : lang === 'fr' ? 'ع' : 'EN'}
               </button>
             </div>
-            <img src={(await import('@/assets/logo.png')).default} alt="MaraaiTech" className="mx-auto h-20 w-20 object-contain" />
-            </div>
+            <img src={logo} alt="MaraaiTech" className="mx-auto h-20 w-20 object-contain" />
             <CardTitle className="text-2xl font-bold text-primary">
               {t('app.name')}
             </CardTitle>
