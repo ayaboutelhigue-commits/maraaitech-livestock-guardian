@@ -33,19 +33,19 @@ export interface Alert {
 }
 
 export const mockAnimals: Animal[] = [
-  { id: 'a1', name: 'Bessie', collarId: 'C-001', temperature: 38.5, heartRate: 72, motion: 'active', lat: 36.19, lng: 5.41, status: 'online', timestamp: Date.now(), type: 'cow', age: 4, weight: 520, breed: 'Holstein', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 7, expectedDueDate: '2026-06-15', status: 'late' } },
-  { id: 'a2', name: 'Daisy', collarId: 'C-002', temperature: 41.2, heartRate: 68, motion: 'idle', lat: 36.192, lng: 5.413, status: 'online', timestamp: Date.now(), type: 'cow', age: 3, weight: 480, breed: 'Montbéliarde', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 3, expectedDueDate: '2026-10-20', status: 'early' } },
-  { id: 'a3', name: 'Clover', collarId: 'C-003', temperature: 39.1, heartRate: 95, motion: 'active', lat: 36.188, lng: 5.408, status: 'online', timestamp: Date.now(), type: 'sheep', age: 2, weight: 65, breed: 'Ouled Djellal', sex: 'female', pregnancy: { pregnant: false } },
-  { id: 'a4', name: 'Buttercup', collarId: 'C-004', temperature: 34.5, heartRate: 60, motion: 'idle', lat: 36.195, lng: 5.42, status: 'offline', timestamp: Date.now() - 600000, type: 'cow', age: 5, weight: 550, breed: 'Charolais', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 5, expectedDueDate: '2026-08-10', status: 'mid' } },
-  { id: 'a5', name: 'Rosie', collarId: 'C-005', temperature: 38.8, heartRate: 75, motion: 'active', lat: 36.185, lng: 5.405, status: 'online', timestamp: Date.now(), type: 'horse', age: 6, weight: 430, breed: 'Barbe', sex: 'male' },
-  { id: 'a6', name: 'Luna', collarId: 'C-006', temperature: 39.5, heartRate: 110, motion: 'active', lat: 36.191, lng: 5.418, status: 'online', timestamp: Date.now(), type: 'sheep', age: 1, weight: 45, breed: 'Rembi', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 4, expectedDueDate: '2026-08-25', status: 'mid' } },
+  { id: 'a1', name: 'Khayra', collarId: 'C-001', temperature: 38.5, heartRate: 72, motion: 'active', lat: 36.19, lng: 5.41, status: 'online', timestamp: Date.now(), type: 'cow', age: 4, weight: 520, breed: 'Holstein', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 7, expectedDueDate: '2026-06-15', status: 'late' } },
+  { id: 'a2', name: 'Hasiba', collarId: 'C-002', temperature: 41.2, heartRate: 68, motion: 'idle', lat: 36.192, lng: 5.413, status: 'online', timestamp: Date.now(), type: 'cow', age: 3, weight: 480, breed: 'Montbéliarde', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 3, expectedDueDate: '2026-10-20', status: 'early' } },
+  { id: 'a3', name: 'Jemaa', collarId: 'C-003', temperature: 39.1, heartRate: 95, motion: 'active', lat: 36.188, lng: 5.408, status: 'online', timestamp: Date.now(), type: 'sheep', age: 2, weight: 65, breed: 'Ouled Djellal', sex: 'female', pregnancy: { pregnant: false } },
+  { id: 'a4', name: 'Zahra', collarId: 'C-004', temperature: 34.5, heartRate: 60, motion: 'idle', lat: 36.195, lng: 5.42, status: 'offline', timestamp: Date.now() - 600000, type: 'cow', age: 5, weight: 550, breed: 'Charolais', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 5, expectedDueDate: '2026-08-10', status: 'mid' } },
+  { id: 'a5', name: 'Aziz', collarId: 'C-005', temperature: 38.8, heartRate: 75, motion: 'active', lat: 36.185, lng: 5.405, status: 'online', timestamp: Date.now(), type: 'horse', age: 6, weight: 430, breed: 'Barbe', sex: 'male' },
+  { id: 'a6', name: 'Warda', collarId: 'C-006', temperature: 39.5, heartRate: 110, motion: 'active', lat: 36.191, lng: 5.418, status: 'online', timestamp: Date.now(), type: 'sheep', age: 1, weight: 45, breed: 'Rembi', sex: 'female', pregnancy: { pregnant: true, monthsPregnant: 4, expectedDueDate: '2026-08-25', status: 'mid' } },
 ];
 
 export const mockAlerts: Alert[] = [
-  { id: 'al1', animalId: 'a2', animalName: 'Daisy', type: 'temp_high', value: 41.2, timestamp: Date.now() - 60000, read: false },
-  { id: 'al2', animalId: 'a4', animalName: 'Buttercup', type: 'temp_low', value: 34.5, timestamp: Date.now() - 120000, read: false },
-  { id: 'al3', animalId: 'a6', animalName: 'Luna', type: 'heart_high', value: 110, timestamp: Date.now() - 300000, read: true },
-  { id: 'al4', animalId: 'a4', animalName: 'Buttercup', type: 'offline', value: 0, timestamp: Date.now() - 600000, read: true },
+  { id: 'al1', animalId: 'a2', animalName: 'Hasiba', type: 'temp_high', value: 41.2, timestamp: Date.now() - 60000, read: false },
+  { id: 'al2', animalId: 'a4', animalName: 'Zahra', type: 'temp_low', value: 34.5, timestamp: Date.now() - 120000, read: false },
+  { id: 'al3', animalId: 'a6', animalName: 'Warda', type: 'heart_high', value: 110, timestamp: Date.now() - 300000, read: true },
+  { id: 'al4', animalId: 'a4', animalName: 'Zahra', type: 'offline', value: 0, timestamp: Date.now() - 600000, read: true },
 ];
 
 export const generateTimeSeriesData = (animalId: string, hours = 24) => {
