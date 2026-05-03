@@ -89,7 +89,7 @@ const LoginPage = () => {
                 {lang === 'en' ? 'FR' : lang === 'fr' ? 'ع' : 'EN'}
               </button>
             </div>
-            <img src={logo} alt="MaraaiTech" className="mx-auto h-20 w-20 object-contain" />
+            <img src={logo} alt="RaaiTech" className="mx-auto h-20 w-20 object-contain" />
             <CardTitle className="text-2xl font-bold text-primary">
               {t('app.name')}
             </CardTitle>

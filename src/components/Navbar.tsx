@@ -34,7 +34,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="MaraaiTech" width={36} height={36} className="h-9 w-9 object-contain" />
+          <img src={logo} alt="RaaiTech" width={36} height={36} className="h-9 w-9 object-contain" />
           <span className="text-xl font-bold text-foreground">{t('app.name')}</span>
         </Link>
 
