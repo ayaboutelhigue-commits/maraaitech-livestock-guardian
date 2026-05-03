@@ -16,7 +16,7 @@ interface LanguageContextType {
 }
 
 const translations: Record<string, Record<Lang, string>> = {
-  'app.name': { en: 'MaraaiTech', ar: 'مراعيTech', fr: 'MaraaiTech' },
+  'app.name': { en: 'RaaiTech', ar: 'راعيTech', fr: 'RaaiTech' },
   'nav.home': { en: 'Home', ar: 'الرئيسية', fr: 'Accueil' },
   'nav.dashboard': { en: 'Dashboard', ar: 'لوحة التحكم', fr: 'Tableau de bord' },
   'nav.map': { en: 'Live Map', ar: 'الخريطة الحية', fr: 'Carte en direct' },
