@@ -1,3 +1,4 @@
+/// <reference types="web-bluetooth" />
 import { useCallback, useRef, useState } from 'react';
 
 // Nordic UART Service (NUS) — standard for ESP32 BLE serial bridges
