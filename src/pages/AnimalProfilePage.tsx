@@ -77,12 +77,20 @@ const AnimalProfilePage = () => {
             <p className="text-sm text-muted-foreground">{animal.collarId} · {t(`profile.type.${animal.type}`)} · {animal.breed}</p>
           </div>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ${
-          animal.status === 'online' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
-        }`}>
-          {animal.status === 'online' ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
-          {t(`status.${animal.status}`)}
-        </span>
+        <div className="flex items-center gap-2">
+          {isLive && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
+              <BluetoothConnected className="h-3.5 w-3.5" />
+              Live · {ble.deviceName ?? 'BLE'}
+            </span>
+          )}
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ${
+            animal.status === 'online' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
+          }`}>
+            {animal.status === 'online' ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+            {t(`status.${animal.status}`)}
+          </span>
+        </div>
       </motion.div>
 
       {/* Info Grid */}
