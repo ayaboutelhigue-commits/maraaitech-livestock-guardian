@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { motion } from 'framer-motion';
-import { Home, LayoutDashboard, Map, BarChart3, PawPrint, Bell, Sun, Moon, Languages, Menu, X, LogOut } from 'lucide-react';
+import { Home, LayoutDashboard, Map, BarChart3, PawPrint, Bell, Sun, Moon, Languages, Menu, X, LogOut, Bluetooth } from 'lucide-react';
 import { useState } from 'react';
 import logo from '@/assets/logo.png';
 
@@ -13,6 +13,7 @@ const navItems = [
   { key: 'nav.analytics', path: '/analytics', icon: BarChart3 },
   { key: 'nav.animals', path: '/animals', icon: PawPrint },
   { key: 'nav.alerts', path: '/alerts', icon: Bell },
+  { key: 'nav.device', path: '/device', icon: Bluetooth },
 ];
 
 const Navbar = () => {
