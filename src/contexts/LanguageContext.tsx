@@ -23,6 +23,7 @@ const translations: Record<string, Record<Lang, string>> = {
   'nav.analytics': { en: 'Analytics', ar: 'التحليلات', fr: 'Analytique' },
   'nav.animals': { en: 'Animals', ar: 'الحيوانات', fr: 'Animaux' },
   'nav.alerts': { en: 'Alerts', ar: 'التنبيهات', fr: 'Alertes' },
+  'nav.device': { en: 'Device', ar: 'الجهاز', fr: 'Appareil' },
   'home.hero.title': { en: 'Smart Livestock Monitoring', ar: 'مراقبة الماشية الذكية', fr: 'Surveillance intelligente du bétail' },
   'home.hero.subtitle': { en: 'Real-time health tracking, GPS location, and intelligent alerts for your livestock — all in one platform.', ar: 'تتبع صحي فوري، تحديد الموقع الجغرافي، وتنبيهات ذكية لماشيتك — كل ذلك في منصة واحدة.', fr: 'Suivi de santé en temps réel, localisation GPS et alertes intelligentes pour votre bétail — tout en une seule plateforme.' },
   'home.hero.cta': { en: 'Start Monitoring', ar: 'ابدأ المراقبة', fr: 'Commencer la surveillance' },

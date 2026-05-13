@@ -17,6 +17,7 @@ const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
 const AnimalsPage = lazy(() => import("./pages/AnimalsPage"));
 const AlertsPage = lazy(() => import("./pages/AlertsPage"));
 const AnimalProfilePage = lazy(() => import("./pages/AnimalProfilePage"));
+const DevicePage = lazy(() => import("./pages/DevicePage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/animals" element={<ProtectedRoute><AnimalsPage /></ProtectedRoute>} />
                 <Route path="/animals/:id" element={<ProtectedRoute><AnimalProfilePage /></ProtectedRoute>} />
                 <Route path="/alerts" element={<ProtectedRoute><AlertsPage /></ProtectedRoute>} />
+                <Route path="/device" element={<ProtectedRoute><DevicePage /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
