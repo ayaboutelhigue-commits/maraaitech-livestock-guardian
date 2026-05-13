@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { BLEProvider } from "@/contexts/BLEContext";
 import Navbar from "@/components/Navbar";
 import { lazy, Suspense } from "react";
 import { Navigate } from "react-router-dom";
@@ -40,6 +41,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <LanguageProvider>
+        <BLEProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -61,6 +63,7 @@ const App = () => (
             </Suspense>
           </BrowserRouter>
         </TooltipProvider>
+        </BLEProvider>
       </LanguageProvider>
     </ThemeProvider>
   </QueryClientProvider>

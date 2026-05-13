@@ -1,10 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useBLEContext } from '@/contexts/BLEContext';
 import { mockAnimals, mockAlerts, generateTimeSeriesData } from '@/data/mockData';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, PawPrint, Thermometer, Heart, Activity, MapPin,
-  Wifi, WifiOff, Baby, Calendar, Weight, Clock, Dna
+  Wifi, WifiOff, Baby, Calendar, Weight, Clock, Dna, BluetoothConnected
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -12,9 +13,10 @@ const AnimalProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const ble = useBLEContext();
 
-  const animal = mockAnimals.find(a => a.id === id);
-  if (!animal) {
+  const baseAnimal = mockAnimals.find(a => a.id === id);
+  if (!baseAnimal) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <p className="text-lg text-muted-foreground">{t('profile.not_found')}</p>
@@ -24,6 +26,19 @@ const AnimalProfilePage = () => {
       </div>
     );
   }
+
+  // Override with live BLE reading if this animal is bound to a connected device
+  const isLive = ble.connected && ble.boundAnimalId === baseAnimal.id && !!ble.reading;
+  const animal = isLive
+    ? {
+        ...baseAnimal,
+        temperature: Number(ble.reading!.temperature.toFixed(1)),
+        heartRate: Math.round(ble.reading!.heartRate),
+        motion: (ble.reading!.activity > 30 ? 'active' : 'idle') as 'active' | 'idle',
+        status: 'online' as const,
+        timestamp: ble.reading!.timestamp,
+      }
+    : baseAnimal;
 
   const alerts = mockAlerts.filter(a => a.animalId === animal.id);
   const chartData = generateTimeSeriesData(animal.id, 24);
@@ -62,12 +77,20 @@ const AnimalProfilePage = () => {
             <p className="text-sm text-muted-foreground">{animal.collarId} · {t(`profile.type.${animal.type}`)} · {animal.breed}</p>
           </div>
         </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ${
-          animal.status === 'online' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
-        }`}>
-          {animal.status === 'online' ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
-          {t(`status.${animal.status}`)}
-        </span>
+        <div className="flex items-center gap-2">
+          {isLive && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
+              <BluetoothConnected className="h-3.5 w-3.5" />
+              Live · {ble.deviceName ?? 'BLE'}
+            </span>
+          )}
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium ${
+            animal.status === 'online' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
+          }`}>
+            {animal.status === 'online' ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+            {t(`status.${animal.status}`)}
+          </span>
+        </div>
       </motion.div>
 
       {/* Info Grid */}
