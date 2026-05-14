@@ -67,14 +67,21 @@ const DashboardPage = () => {
                   <p className="text-xs text-muted-foreground">{animal.collarId}</p>
                 </div>
               </div>
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-                animal.status === 'online'
-                  ? 'bg-success/10 text-success'
-                  : 'bg-destructive/10 text-destructive'
-              }`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${animal.status === 'online' ? 'bg-success animate-pulse-soft' : 'bg-destructive'}`} />
-                {t(`status.${animal.status}`)}
-              </span>
+              <div className="flex items-center gap-2">
+                {isLive && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    <BluetoothConnected className="h-3 w-3" /> Live
+                  </span>
+                )}
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                  animal.status === 'online'
+                    ? 'bg-success/10 text-success'
+                    : 'bg-destructive/10 text-destructive'
+                }`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${animal.status === 'online' ? 'bg-success animate-pulse-soft' : 'bg-destructive'}`} />
+                  {t(`status.${animal.status}`)}
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
@@ -99,7 +106,8 @@ const DashboardPage = () => {
               </div>
             </div>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
