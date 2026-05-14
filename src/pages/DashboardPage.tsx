@@ -1,16 +1,20 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import { mockAnimals, mockAlerts } from '@/data/mockData';
+import { mockAlerts } from '@/data/mockData';
+import { useUserAnimals } from '@/hooks/useUserAnimals';
+import { useBLEContext } from '@/contexts/BLEContext';
 import { motion } from 'framer-motion';
-import { PawPrint, Wifi, WifiOff, AlertTriangle, Thermometer, Heart, Activity } from 'lucide-react';
+import { PawPrint, Wifi, WifiOff, AlertTriangle, Thermometer, Heart, Activity, BluetoothConnected } from 'lucide-react';
 
 const DashboardPage = () => {
   const { t } = useLanguage();
-  const online = mockAnimals.filter(a => a.status === 'online').length;
-  const offline = mockAnimals.length - online;
+  const ble = useBLEContext();
+  const animals = useUserAnimals();
+  const online = animals.filter(a => a.status === 'online').length;
+  const offline = animals.length - online;
   const activeAlerts = mockAlerts.filter(a => !a.read).length;
 
   const stats = [
-    { label: t('dash.total'), value: mockAnimals.length, icon: PawPrint, color: 'text-primary' },
+    { label: t('dash.total'), value: animals.length, icon: PawPrint, color: 'text-primary' },
     { label: t('dash.online'), value: online, icon: Wifi, color: 'text-success' },
     { label: t('dash.offline'), value: offline, icon: WifiOff, color: 'text-destructive' },
     { label: t('dash.alerts'), value: activeAlerts, icon: AlertTriangle, color: 'text-warning' },
@@ -44,7 +48,9 @@ const DashboardPage = () => {
 
       {/* Animal Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {mockAnimals.map((animal, i) => (
+        {animals.map((animal, i) => {
+          const isLive = ble.connected && !!ble.reading && ((ble.boundAnimalId ?? animals[0]?.id) === animal.id);
+          return (
           <motion.div
             key={animal.id}
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
