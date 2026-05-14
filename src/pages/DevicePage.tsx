@@ -15,7 +15,7 @@ const DevicePage = () => {
     fr: { title: 'Appareils', subtitle: 'Connectez votre collier en Bluetooth et liez-le à un animal.', connect: 'Connecter', disconnect: 'Déconnecter', scan: 'Recherche…', supported: 'Web Bluetooth prêt', notSupported: 'Web Bluetooth non pris en charge. Utilisez Chrome ou Edge.', noDevice: 'Aucun appareil connecté', linkTo: 'Lier cet appareil à un animal', linked: 'Lié à', unlink: 'Délier', pick: 'Choisir un animal' },
   }[lang];
 
-  const boundAnimal = mockAnimals.find(a => a.id === ble.boundAnimalId);
+  const boundAnimal = animals.find(a => a.id === ble.boundAnimalId);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -97,7 +97,7 @@ const DevicePage = () => {
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
           >
             <option value="" disabled>{labels.pick}</option>
-            {mockAnimals.map(a => (
+            {animals.map(a => (
               <option key={a.id} value={a.id}>{a.name} — {a.collarId}</option>
             ))}
           </select>
