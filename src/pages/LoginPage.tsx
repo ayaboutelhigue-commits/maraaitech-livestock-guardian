@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { User, KeyRound, PawPrint, MapPin } from 'lucide-react';
+import { User, KeyRound, PawPrint, MapPin, Bluetooth, Map as MapIcon } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { WILAYA_COMMUNES } from '@/data/wilayaCommunes';
 
@@ -40,7 +40,26 @@ const LoginPage = () => {
   const [animalTypes, setAnimalTypes] = useState<string[]>([]);
   const [wilaya, setWilaya] = useState('');
   const [commune, setCommune] = useState('');
+  const [numCollars, setNumCollars] = useState(1);
+  const [collarNames, setCollarNames] = useState<string[]>(['']);
+  const [farmStart, setFarmStart] = useState({ lat: '', lng: '' });
+  const [farmEnd, setFarmEnd] = useState({ lat: '', lng: '' });
   const [error, setError] = useState('');
+
+  const updateNumCollars = (n: number) => {
+    const v = Math.max(1, Math.min(50, n || 1));
+    setNumCollars(v);
+    setCollarNames(prev => {
+      const next = [...prev];
+      while (next.length < v) next.push('');
+      next.length = v;
+      return next;
+    });
+  };
+
+  const setCollarName = (i: number, name: string) => {
+    setCollarNames(prev => prev.map((n, idx) => (idx === i ? name : n)));
+  };
 
   const animalOptions = [
     { value: 'cow', label: t('login.animal.cow') },
@@ -65,12 +84,22 @@ const LoginPage = () => {
       setError(t('login.error.empty'));
       return;
     }
+    if (collarNames.some(n => !n.trim())) {
+      setError(t('login.error.empty'));
+      return;
+    }
     const validCode = VALID_FARMERS[username.toLowerCase()];
     if (!validCode || validCode !== farmerCode) {
       setError(t('login.error.invalid'));
       return;
     }
-    localStorage.setItem('maraai_user', JSON.stringify({ username, farmerCode, animalTypes, wilaya, commune }));
+    const collars = collarNames.map(n => ({ name: n.trim() }));
+    const fs = farmStart.lat && farmStart.lng ? { lat: parseFloat(farmStart.lat), lng: parseFloat(farmStart.lng) } : undefined;
+    const fe = farmEnd.lat && farmEnd.lng ? { lat: parseFloat(farmEnd.lat), lng: parseFloat(farmEnd.lng) } : undefined;
+    localStorage.setItem('maraai_user', JSON.stringify({
+      username, farmerCode, animalTypes, wilaya, commune,
+      numCollars, collars, farmStart: fs, farmEnd: fe,
+    }));
     navigate('/dashboard');
   };
 
@@ -174,6 +203,41 @@ const LoginPage = () => {
                   </Select>
                 </div>
               )}
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Bluetooth className="h-4 w-4" />
+                  Number of collars
+                </Label>
+                <Input
+                  type="number" min={1} max={50}
+                  value={numCollars}
+                  onChange={e => updateNumCollars(parseInt(e.target.value, 10))}
+                />
+                <div className="space-y-2 pt-1">
+                  {collarNames.map((name, i) => (
+                    <Input
+                      key={i}
+                      value={name}
+                      onChange={e => setCollarName(i, e.target.value)}
+                      placeholder={`Cow / Collar #${i + 1} name`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <MapIcon className="h-4 w-4" />
+                  Farm boundary (optional)
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input placeholder="Start lat" value={farmStart.lat} onChange={e => setFarmStart(s => ({ ...s, lat: e.target.value }))} />
+                  <Input placeholder="Start lng" value={farmStart.lng} onChange={e => setFarmStart(s => ({ ...s, lng: e.target.value }))} />
+                  <Input placeholder="End lat" value={farmEnd.lat} onChange={e => setFarmEnd(s => ({ ...s, lat: e.target.value }))} />
+                  <Input placeholder="End lng" value={farmEnd.lng} onChange={e => setFarmEnd(s => ({ ...s, lng: e.target.value }))} />
+                </div>
+              </div>
 
               <Button type="submit" className="w-full" size="lg">
                 {t('login.submit')}

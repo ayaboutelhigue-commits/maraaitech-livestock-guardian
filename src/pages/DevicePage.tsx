@@ -2,11 +2,12 @@ import { motion } from 'framer-motion';
 import { Bluetooth, BluetoothConnected, BluetoothOff, PawPrint } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useBLEContext } from '@/contexts/BLEContext';
-import { mockAnimals } from '@/data/mockData';
+import { useUserAnimals } from '@/hooks/useUserAnimals';
 
 const DevicePage = () => {
   const { lang } = useLanguage();
   const ble = useBLEContext();
+  const animals = useUserAnimals();
 
   const labels = {
     en: { title: 'Devices', subtitle: 'Connect your collar over Bluetooth and link it to an animal.', connect: 'Connect device', disconnect: 'Disconnect', scan: 'Scanning…', supported: 'Web Bluetooth ready', notSupported: 'Web Bluetooth is not supported in this browser. Use Chrome or Edge on Android or Desktop.', noDevice: 'No device connected', linkTo: 'Link this device to an animal', linked: 'Linked to', unlink: 'Unlink', pick: 'Choose an animal' },
@@ -14,7 +15,7 @@ const DevicePage = () => {
     fr: { title: 'Appareils', subtitle: 'Connectez votre collier en Bluetooth et liez-le à un animal.', connect: 'Connecter', disconnect: 'Déconnecter', scan: 'Recherche…', supported: 'Web Bluetooth prêt', notSupported: 'Web Bluetooth non pris en charge. Utilisez Chrome ou Edge.', noDevice: 'Aucun appareil connecté', linkTo: 'Lier cet appareil à un animal', linked: 'Lié à', unlink: 'Délier', pick: 'Choisir un animal' },
   }[lang];
 
-  const boundAnimal = mockAnimals.find(a => a.id === ble.boundAnimalId);
+  const boundAnimal = animals.find(a => a.id === ble.boundAnimalId);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -96,7 +97,7 @@ const DevicePage = () => {
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
           >
             <option value="" disabled>{labels.pick}</option>
-            {mockAnimals.map(a => (
+            {animals.map(a => (
               <option key={a.id} value={a.id}>{a.name} — {a.collarId}</option>
             ))}
           </select>
