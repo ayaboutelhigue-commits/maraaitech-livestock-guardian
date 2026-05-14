@@ -1,6 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import { mockAnimals, Animal } from '@/data/mockData';
-import { useState } from 'react';
+import { Animal } from '@/data/mockData';
+import { useUserAnimals } from '@/hooks/useUserAnimals';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Pencil, Trash2, X, Download, Eye } from 'lucide-react';
@@ -8,7 +9,9 @@ import { Plus, Pencil, Trash2, X, Download, Eye } from 'lucide-react';
 const AnimalsPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [animals, setAnimals] = useState<Animal[]>(mockAnimals);
+  const initial = useUserAnimals();
+  const [animals, setAnimals] = useState<Animal[]>(initial);
+  useEffect(() => { setAnimals(initial); /* refresh when live data changes */ }, [initial]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', id: '', collarId: '' });

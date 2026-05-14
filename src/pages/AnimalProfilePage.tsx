@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useBLEContext } from '@/contexts/BLEContext';
-import { mockAnimals, mockAlerts, generateTimeSeriesData } from '@/data/mockData';
+import { mockAlerts, generateTimeSeriesData } from '@/data/mockData';
+import { useUserAnimals } from '@/hooks/useUserAnimals';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, PawPrint, Thermometer, Heart, Activity, MapPin,
@@ -14,9 +15,10 @@ const AnimalProfilePage = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const ble = useBLEContext();
+  const animals = useUserAnimals();
 
-  const baseAnimal = mockAnimals.find(a => a.id === id);
-  if (!baseAnimal) {
+  const animal = animals.find(a => a.id === id);
+  if (!animal) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <p className="text-lg text-muted-foreground">{t('profile.not_found')}</p>
@@ -27,18 +29,7 @@ const AnimalProfilePage = () => {
     );
   }
 
-  // Override with live BLE reading if this animal is bound to a connected device
-  const isLive = ble.connected && ble.boundAnimalId === baseAnimal.id && !!ble.reading;
-  const animal = isLive
-    ? {
-        ...baseAnimal,
-        temperature: Number(ble.reading!.temperature.toFixed(1)),
-        heartRate: Math.round(ble.reading!.heartRate),
-        motion: (ble.reading!.activity > 30 ? 'active' : 'idle') as 'active' | 'idle',
-        status: 'online' as const,
-        timestamp: ble.reading!.timestamp,
-      }
-    : baseAnimal;
+  const isLive = ble.connected && (ble.boundAnimalId ?? animals[0]?.id) === animal.id && !!ble.reading;
 
   const alerts = mockAlerts.filter(a => a.animalId === animal.id);
   const chartData = generateTimeSeriesData(animal.id, 24);
