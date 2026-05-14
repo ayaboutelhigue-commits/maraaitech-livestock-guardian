@@ -204,6 +204,41 @@ const LoginPage = () => {
                 </div>
               )}
 
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Bluetooth className="h-4 w-4" />
+                  Number of collars
+                </Label>
+                <Input
+                  type="number" min={1} max={50}
+                  value={numCollars}
+                  onChange={e => updateNumCollars(parseInt(e.target.value, 10))}
+                />
+                <div className="space-y-2 pt-1">
+                  {collarNames.map((name, i) => (
+                    <Input
+                      key={i}
+                      value={name}
+                      onChange={e => setCollarName(i, e.target.value)}
+                      placeholder={`Cow / Collar #${i + 1} name`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <MapIcon className="h-4 w-4" />
+                  Farm boundary (optional)
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input placeholder="Start lat" value={farmStart.lat} onChange={e => setFarmStart(s => ({ ...s, lat: e.target.value }))} />
+                  <Input placeholder="Start lng" value={farmStart.lng} onChange={e => setFarmStart(s => ({ ...s, lng: e.target.value }))} />
+                  <Input placeholder="End lat" value={farmEnd.lat} onChange={e => setFarmEnd(s => ({ ...s, lat: e.target.value }))} />
+                  <Input placeholder="End lng" value={farmEnd.lng} onChange={e => setFarmEnd(s => ({ ...s, lng: e.target.value }))} />
+                </div>
+              </div>
+
               <Button type="submit" className="w-full" size="lg">
                 {t('login.submit')}
               </Button>
