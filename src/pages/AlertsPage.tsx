@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { mockAlerts, mockAnimals } from '@/data/mockData';
 import { suggestDiseases } from '@/utils/diseaseSuggestion';
@@ -5,8 +6,8 @@ import { isDangerous } from '@/utils/urgencyCheck';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Thermometer, Heart, WifiOff, Stethoscope, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const VET_PHONE = '+213555000111'; // Example vet emergency number
+import { readFarmConfig } from '@/hooks/useUserAnimals';
+import { findClosestVet } from '@/data/vets';
 
 const iconMap: Record<string, typeof AlertTriangle> = {
   temp_high: Thermometer, temp_low: Thermometer,
@@ -16,6 +17,19 @@ const iconMap: Record<string, typeof AlertTriangle> = {
 
 const AlertsPage = () => {
   const { t, lang } = useLanguage();
+
+  const { vetLabel, vetPhone, vetSubLabel } = useMemo(() => {
+    const cfg = readFarmConfig() as ReturnType<typeof readFarmConfig> & { vetPhone?: string };
+    if (cfg.vetPhone) {
+      return { vetLabel: 'Your vet', vetPhone: cfg.vetPhone, vetSubLabel: cfg.vetPhone };
+    }
+    const closest = findClosestVet(cfg.farmLocation, cfg.wilaya);
+    if (!closest) return { vetLabel: 'Vet', vetPhone: '', vetSubLabel: '' };
+    const sub = closest.distanceKm > 0
+      ? `${closest.name} · ~${closest.distanceKm.toFixed(0)} km`
+      : `${closest.name} (${closest.wilaya})`;
+    return { vetLabel: 'Closest vet', vetPhone: closest.phone, vetSubLabel: sub };
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
