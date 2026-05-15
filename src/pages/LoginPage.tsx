@@ -241,6 +241,24 @@ const LoginPage = () => {
                 <p className="text-xs text-muted-foreground">Exact coordinates of your farm — used only to mark its location on the map.</p>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="vetPhone" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  Your vet's phone (optional)
+                </Label>
+                <Input
+                  id="vetPhone"
+                  type="tel"
+                  inputMode="tel"
+                  value={vetPhone}
+                  onChange={e => setVetPhone(e.target.value)}
+                  placeholder="+213 555 000 000"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Used as your default vet. If left empty, the app suggests the closest vet to your farm.
+                </p>
+              </div>
+
               <Button type="submit" className="w-full" size="lg">
                 {t('login.submit')}
               </Button>
