@@ -89,15 +89,20 @@ const AlertsPage = () => {
                 )}
 
                 {/* Urgent vet call banner */}
-                {urgent && (
+                {urgent && vetPhone && (
                   <div className="mt-3 flex flex-col gap-2 rounded-xl border border-red-500/40 bg-red-500/10 p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 animate-bounce" />
-                      <span className="text-sm font-bold text-red-700 dark:text-red-300">
-                        {t('alert.urgent')}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-red-700 dark:text-red-300">
+                          {t('alert.urgent')}
+                        </span>
+                        <span className="text-xs text-red-700/80 dark:text-red-300/80">
+                          {vetLabel}: {vetSubLabel}
+                        </span>
+                      </div>
                     </div>
-                    <a href={`tel:${VET_PHONE}`}>
+                    <a href={`tel:${vetPhone}`}>
                       <Button variant="destructive" size="sm" className="gap-2">
                         <Phone className="h-4 w-4" />
                         {t('alert.call_vet')}
