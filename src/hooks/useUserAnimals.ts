@@ -6,8 +6,7 @@ export interface FarmConfig {
   username?: string;
   collars?: { name: string }[];
   numCollars?: number;
-  farmStart?: { lat: number; lng: number };
-  farmEnd?: { lat: number; lng: number };
+  farmLocation?: { lat: number; lng: number };
   wilaya?: string;
   commune?: string;
 }
@@ -24,7 +23,7 @@ export const buildUserAnimals = (cfg: FarmConfig): Animal[] => {
   const collars = cfg.collars ?? [];
   if (collars.length === 0) return mockAnimals;
 
-  const center = cfg.farmStart ?? { lat: 36.19, lng: 5.41 };
+  const center = cfg.farmLocation ?? { lat: 36.19, lng: 5.41 };
   return collars.map((c, i) => ({
     id: `u${i + 1}`,
     name: c.name || `Collar ${i + 1}`,
