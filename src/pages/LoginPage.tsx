@@ -101,6 +101,7 @@ const LoginPage = () => {
     localStorage.setItem('maraai_user', JSON.stringify({
       username, farmerCode, animalTypes, wilaya, commune,
       numCollars, collars, farmLocation: fl,
+      vetPhone: vetPhone.trim() || undefined,
     }));
     navigate('/dashboard');
   };
