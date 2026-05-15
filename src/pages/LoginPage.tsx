@@ -40,10 +40,10 @@ const LoginPage = () => {
   const [animalTypes, setAnimalTypes] = useState<string[]>([]);
   const [wilaya, setWilaya] = useState('');
   const [commune, setCommune] = useState('');
+  const defaultCollarName = (i: number) => (i === 0 ? 'kiky' : `kiky${i + 1}`);
   const [numCollars, setNumCollars] = useState(1);
-  const [collarNames, setCollarNames] = useState<string[]>(['']);
-  const [farmStart, setFarmStart] = useState({ lat: '', lng: '' });
-  const [farmEnd, setFarmEnd] = useState({ lat: '', lng: '' });
+  const [collarNames, setCollarNames] = useState<string[]>([defaultCollarName(0)]);
+  const [farmLocation, setFarmLocation] = useState({ lat: '', lng: '' });
   const [error, setError] = useState('');
 
   const updateNumCollars = (n: number) => {
@@ -51,7 +51,7 @@ const LoginPage = () => {
     setNumCollars(v);
     setCollarNames(prev => {
       const next = [...prev];
-      while (next.length < v) next.push('');
+      while (next.length < v) next.push(defaultCollarName(next.length));
       next.length = v;
       return next;
     });
@@ -94,11 +94,12 @@ const LoginPage = () => {
       return;
     }
     const collars = collarNames.map(n => ({ name: n.trim() }));
-    const fs = farmStart.lat && farmStart.lng ? { lat: parseFloat(farmStart.lat), lng: parseFloat(farmStart.lng) } : undefined;
-    const fe = farmEnd.lat && farmEnd.lng ? { lat: parseFloat(farmEnd.lat), lng: parseFloat(farmEnd.lng) } : undefined;
+    const fl = farmLocation.lat && farmLocation.lng
+      ? { lat: parseFloat(farmLocation.lat), lng: parseFloat(farmLocation.lng) }
+      : undefined;
     localStorage.setItem('maraai_user', JSON.stringify({
       username, farmerCode, animalTypes, wilaya, commune,
-      numCollars, collars, farmStart: fs, farmEnd: fe,
+      numCollars, collars, farmLocation: fl,
     }));
     navigate('/dashboard');
   };
@@ -229,14 +230,13 @@ const LoginPage = () => {
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <MapIcon className="h-4 w-4" />
-                  Farm boundary (optional)
+                  Farm location (optional)
                 </Label>
                 <div className="grid grid-cols-2 gap-2">
-                  <Input placeholder="Start lat" value={farmStart.lat} onChange={e => setFarmStart(s => ({ ...s, lat: e.target.value }))} />
-                  <Input placeholder="Start lng" value={farmStart.lng} onChange={e => setFarmStart(s => ({ ...s, lng: e.target.value }))} />
-                  <Input placeholder="End lat" value={farmEnd.lat} onChange={e => setFarmEnd(s => ({ ...s, lat: e.target.value }))} />
-                  <Input placeholder="End lng" value={farmEnd.lng} onChange={e => setFarmEnd(s => ({ ...s, lng: e.target.value }))} />
+                  <Input placeholder="Latitude" value={farmLocation.lat} onChange={e => setFarmLocation(s => ({ ...s, lat: e.target.value }))} />
+                  <Input placeholder="Longitude" value={farmLocation.lng} onChange={e => setFarmLocation(s => ({ ...s, lng: e.target.value }))} />
                 </div>
+                <p className="text-xs text-muted-foreground">Exact coordinates of your farm — used only to mark its location on the map.</p>
               </div>
 
               <Button type="submit" className="w-full" size="lg">
