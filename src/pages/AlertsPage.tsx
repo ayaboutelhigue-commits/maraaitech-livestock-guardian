@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { mockAlerts, mockAnimals } from '@/data/mockData';
 import { suggestDiseases } from '@/utils/diseaseSuggestion';
@@ -5,8 +6,8 @@ import { isDangerous } from '@/utils/urgencyCheck';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Thermometer, Heart, WifiOff, Stethoscope, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const VET_PHONE = '+213555000111'; // Example vet emergency number
+import { readFarmConfig } from '@/hooks/useUserAnimals';
+import { findClosestVet } from '@/data/vets';
 
 const iconMap: Record<string, typeof AlertTriangle> = {
   temp_high: Thermometer, temp_low: Thermometer,
@@ -16,6 +17,19 @@ const iconMap: Record<string, typeof AlertTriangle> = {
 
 const AlertsPage = () => {
   const { t, lang } = useLanguage();
+
+  const { vetLabel, vetPhone, vetSubLabel } = useMemo(() => {
+    const cfg = readFarmConfig() as ReturnType<typeof readFarmConfig> & { vetPhone?: string };
+    if (cfg.vetPhone) {
+      return { vetLabel: 'Your vet', vetPhone: cfg.vetPhone, vetSubLabel: cfg.vetPhone };
+    }
+    const closest = findClosestVet(cfg.farmLocation, cfg.wilaya);
+    if (!closest) return { vetLabel: 'Vet', vetPhone: '', vetSubLabel: '' };
+    const sub = closest.distanceKm > 0
+      ? `${closest.name} · ~${closest.distanceKm.toFixed(0)} km`
+      : `${closest.name} (${closest.wilaya})`;
+    return { vetLabel: 'Closest vet', vetPhone: closest.phone, vetSubLabel: sub };
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -75,15 +89,20 @@ const AlertsPage = () => {
                 )}
 
                 {/* Urgent vet call banner */}
-                {urgent && (
+                {urgent && vetPhone && (
                   <div className="mt-3 flex flex-col gap-2 rounded-xl border border-red-500/40 bg-red-500/10 p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 animate-bounce" />
-                      <span className="text-sm font-bold text-red-700 dark:text-red-300">
-                        {t('alert.urgent')}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-red-700 dark:text-red-300">
+                          {t('alert.urgent')}
+                        </span>
+                        <span className="text-xs text-red-700/80 dark:text-red-300/80">
+                          {vetLabel}: {vetSubLabel}
+                        </span>
+                      </div>
                     </div>
-                    <a href={`tel:${VET_PHONE}`}>
+                    <a href={`tel:${vetPhone}`}>
                       <Button variant="destructive" size="sm" className="gap-2">
                         <Phone className="h-4 w-4" />
                         {t('alert.call_vet')}

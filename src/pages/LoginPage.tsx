@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { User, KeyRound, PawPrint, MapPin, Bluetooth, Map as MapIcon } from 'lucide-react';
+import { User, KeyRound, PawPrint, MapPin, Bluetooth, Map as MapIcon, Phone } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { WILAYA_COMMUNES } from '@/data/wilayaCommunes';
 
@@ -44,6 +44,7 @@ const LoginPage = () => {
   const [numCollars, setNumCollars] = useState(1);
   const [collarNames, setCollarNames] = useState<string[]>([defaultCollarName(0)]);
   const [farmLocation, setFarmLocation] = useState({ lat: '', lng: '' });
+  const [vetPhone, setVetPhone] = useState('');
   const [error, setError] = useState('');
 
   const updateNumCollars = (n: number) => {
@@ -100,6 +101,7 @@ const LoginPage = () => {
     localStorage.setItem('maraai_user', JSON.stringify({
       username, farmerCode, animalTypes, wilaya, commune,
       numCollars, collars, farmLocation: fl,
+      vetPhone: vetPhone.trim() || undefined,
     }));
     navigate('/dashboard');
   };
@@ -237,6 +239,24 @@ const LoginPage = () => {
                   <Input placeholder="Longitude" value={farmLocation.lng} onChange={e => setFarmLocation(s => ({ ...s, lng: e.target.value }))} />
                 </div>
                 <p className="text-xs text-muted-foreground">Exact coordinates of your farm — used only to mark its location on the map.</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="vetPhone" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  Your vet's phone (optional)
+                </Label>
+                <Input
+                  id="vetPhone"
+                  type="tel"
+                  inputMode="tel"
+                  value={vetPhone}
+                  onChange={e => setVetPhone(e.target.value)}
+                  placeholder="+213 555 000 000"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Used as your default vet. If left empty, the app suggests the closest vet to your farm.
+                </p>
               </div>
 
               <Button type="submit" className="w-full" size="lg">
