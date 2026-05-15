@@ -44,6 +44,7 @@ const LoginPage = () => {
   const [numCollars, setNumCollars] = useState(1);
   const [collarNames, setCollarNames] = useState<string[]>([defaultCollarName(0)]);
   const [farmLocation, setFarmLocation] = useState({ lat: '', lng: '' });
+  const [vetPhone, setVetPhone] = useState('');
   const [error, setError] = useState('');
 
   const updateNumCollars = (n: number) => {
