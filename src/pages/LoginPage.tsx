@@ -40,10 +40,10 @@ const LoginPage = () => {
   const [animalTypes, setAnimalTypes] = useState<string[]>([]);
   const [wilaya, setWilaya] = useState('');
   const [commune, setCommune] = useState('');
+  const defaultCollarName = (i: number) => (i === 0 ? 'kiky' : `kiky${i + 1}`);
   const [numCollars, setNumCollars] = useState(1);
-  const [collarNames, setCollarNames] = useState<string[]>(['']);
-  const [farmStart, setFarmStart] = useState({ lat: '', lng: '' });
-  const [farmEnd, setFarmEnd] = useState({ lat: '', lng: '' });
+  const [collarNames, setCollarNames] = useState<string[]>([defaultCollarName(0)]);
+  const [farmLocation, setFarmLocation] = useState({ lat: '', lng: '' });
   const [error, setError] = useState('');
 
   const updateNumCollars = (n: number) => {
@@ -51,7 +51,7 @@ const LoginPage = () => {
     setNumCollars(v);
     setCollarNames(prev => {
       const next = [...prev];
-      while (next.length < v) next.push('');
+      while (next.length < v) next.push(defaultCollarName(next.length));
       next.length = v;
       return next;
     });
