@@ -112,8 +112,8 @@ const AnimalsPage = () => {
                 <td className="px-4 py-3 font-medium text-foreground">{a.name}</td>
                 <td className="px-4 py-3 text-muted-foreground">{a.id}</td>
                 <td className="px-4 py-3 text-muted-foreground">{a.collarId}</td>
-                <td className="px-4 py-3 text-foreground">{a.temperature}°C</td>
-                <td className="px-4 py-3 text-foreground">{a.heartRate} BPM</td>
+                <td className="px-4 py-3 text-foreground">{a.temperature != null ? `${a.temperature}°C` : '—'}</td>
+                <td className="px-4 py-3 text-foreground">{a.heartRate != null ? `${a.heartRate} BPM` : '—'}</td>
                 <td className="px-4 py-3 text-end">
                   <button onClick={() => navigate(`/animals/${a.id}`)} className="rounded p-1.5 text-primary hover:bg-primary/10"><Eye className="h-4 w-4" /></button>
                   <button onClick={() => handleEdit(a)} className="rounded p-1.5 text-muted-foreground hover:bg-muted"><Pencil className="h-4 w-4" /></button>
