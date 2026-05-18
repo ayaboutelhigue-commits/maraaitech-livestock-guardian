@@ -23,9 +23,9 @@ const AnimalsPage = () => {
     } else {
       const newAnimal: Animal = {
         id: form.id, name: form.name, collarId: form.collarId,
-        temperature: 38.5, heartRate: 70, motion: 'idle',
+        temperature: null, heartRate: null, motion: null,
         lat: 36.19 + Math.random() * 0.01, lng: 5.41 + Math.random() * 0.01,
-        status: 'online', timestamp: Date.now(),
+        status: 'offline', timestamp: 0,
         type: 'cow', age: 1, weight: 100, breed: 'Unknown', sex: 'female',
       };
       setAnimals(prev => [...prev, newAnimal]);
