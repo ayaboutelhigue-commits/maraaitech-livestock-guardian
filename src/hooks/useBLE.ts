@@ -1,15 +1,20 @@
 /// <reference types="web-bluetooth" />
 import { useCallback, useRef, useState } from 'react';
 
-// Nordic UART Service (NUS) — standard for ESP32 BLE serial bridges
-export const NUS_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-export const NUS_TX_CHAR = '6e400003-b5a3-f393-e0a9-e50e24dcca9e'; // notify (device -> app)
-export const NUS_RX_CHAR = '6e400002-b5a3-f393-e0a9-e50e24dcca9e'; // write  (app -> device)
+// UUIDs must match the ESP32 firmware (ESP32_HealthMonitor):
+//   BLEDevice::init("ESP32_HealthMonitor");
+//   SERVICE_UUID        "12345678-1234-1234-1234-123456789abc"
+//   CHARACTERISTIC_UUID "abcdefab-1234-5678-1234-abcdefabcdef"  (NOTIFY + READ)
+export const HEALTH_SERVICE = '12345678-1234-1234-1234-123456789abc';
+export const HEALTH_CHAR    = 'abcdefab-1234-5678-1234-abcdefabcdef';
+export const DEVICE_NAME_PREFIX = 'ESP32_HealthMonitor';
 
 export interface SensorReading {
   temperature: number;
   heartRate: number;
   activity: number;
+  tempStatus?: 'NORMAL' | 'ABNORMAL';
+  heartStatus?: 'NORMAL' | 'ABNORMAL';
   timestamp: number;
 }
 
@@ -33,7 +38,6 @@ export function useBLE() {
   });
 
   const deviceRef = useRef<BluetoothDevice | null>(null);
-  const rxCharRef = useRef<BluetoothRemoteGATTCharacteristic | null>(null);
   const bufferRef = useRef<string>('');
 
   const isSupported = typeof navigator !== 'undefined' && !!(navigator as any).bluetooth;
@@ -43,14 +47,17 @@ export function useBLE() {
     const value = target.value;
     if (!value) return;
     const decoder = new TextDecoder();
-    bufferRef.current += decoder.decode(value);
+    const chunk = decoder.decode(value);
 
-    // Parse line-by-line (newline-delimited)
-    const lines = bufferRef.current.split(/\r?\n/);
-    bufferRef.current = lines.pop() ?? '';
+    // The firmware sends one full payload per notify() without a newline,
+    // but we still handle newline-delimited streams gracefully.
+    bufferRef.current += chunk;
+    const parts = bufferRef.current.split(/\r?\n/);
+    bufferRef.current = parts.length > 1 ? (parts.pop() ?? '') : '';
+    const candidates = parts.length > 1 ? parts : [chunk];
 
-    for (const line of lines) {
-      const trimmed = line.trim();
+    for (const raw of candidates) {
+      const trimmed = raw.trim();
       if (!trimmed) continue;
       const reading = parseLine(trimmed);
       if (reading) {
@@ -75,30 +82,39 @@ export function useBLE() {
     setState(s => ({ ...s, connecting: true, error: null }));
     try {
       const device = await (navigator as any).bluetooth.requestDevice({
-        filters: [{ services: [NUS_SERVICE] }],
-        optionalServices: [NUS_SERVICE],
+        filters: [
+          { services: [HEALTH_SERVICE] },
+          { namePrefix: DEVICE_NAME_PREFIX },
+        ],
+        optionalServices: [HEALTH_SERVICE],
       });
       deviceRef.current = device;
       device.addEventListener('gattserverdisconnected', onDisconnected);
 
       const server = await device.gatt!.connect();
-      const service = await server.getPrimaryService(NUS_SERVICE);
-      const txChar = await service.getCharacteristic(NUS_TX_CHAR);
-      try {
-        const rxChar = await service.getCharacteristic(NUS_RX_CHAR);
-        rxCharRef.current = rxChar;
-      } catch {
-        rxCharRef.current = null;
-      }
+      const service = await server.getPrimaryService(HEALTH_SERVICE);
+      const char = await service.getCharacteristic(HEALTH_CHAR);
 
-      await txChar.startNotifications();
-      txChar.addEventListener('characteristicvaluechanged', handleData);
+      await char.startNotifications();
+      char.addEventListener('characteristicvaluechanged', handleData);
+
+      // Prime UI with the initial READ value, if available.
+      try {
+        const initial = await char.readValue();
+        const text = new TextDecoder().decode(initial);
+        const reading = parseLine(text.trim());
+        if (reading) {
+          setState(s => ({ ...s, reading, history: [...s.history, reading] }));
+        }
+      } catch {
+        /* read not supported — notifications will deliver data */
+      }
 
       setState(s => ({
         ...s,
         connected: true,
         connecting: false,
-        deviceName: device.name ?? 'Unknown device',
+        deviceName: device.name ?? 'ESP32_HealthMonitor',
       }));
     } catch (err: any) {
       setState(s => ({
@@ -114,40 +130,66 @@ export function useBLE() {
     const dev = deviceRef.current;
     if (dev?.gatt?.connected) dev.gatt.disconnect();
     deviceRef.current = null;
-    rxCharRef.current = null;
     setState(s => ({ ...s, connected: false }));
   }, []);
 
-  const send = useCallback(async (text: string) => {
-    const ch = rxCharRef.current;
-    if (!ch) throw new Error('No writable characteristic');
-    const data = new TextEncoder().encode(text);
-    await ch.writeValueWithoutResponse(data);
-  }, []);
-
-  return { ...state, isSupported, connect, disconnect, send };
+  return { ...state, isSupported, connect, disconnect };
 }
 
-// Accepts:  "temp,hr,activity"  e.g. "38.7,72,55"
-// Or JSON:  {"temp":38.7,"hr":72,"activity":55}
+/**
+ * Parses the firmware payload:
+ *   "TEMP:36.50,TEMP_STATUS:NORMAL,BPM:75,HEART_STATUS:NORMAL"
+ * Also accepts JSON {temp, hr, activity} and bare "temp,hr,activity" for backward compatibility.
+ */
 function parseLine(line: string): SensorReading | null {
+  if (!line) return null;
   try {
+    // JSON form
     if (line.startsWith('{')) {
       const obj = JSON.parse(line);
-      const t = Number(obj.temp ?? obj.temperature);
-      const h = Number(obj.hr ?? obj.heartRate);
+      const t = Number(obj.temp ?? obj.temperature ?? obj.TEMP);
+      const h = Number(obj.hr ?? obj.heartRate ?? obj.BPM);
       const a = Number(obj.activity ?? obj.motion ?? 0);
       if (Number.isFinite(t) && Number.isFinite(h)) {
         return { temperature: t, heartRate: h, activity: a, timestamp: Date.now() };
       }
       return null;
     }
+
+    // KEY:VALUE,KEY:VALUE — firmware format
+    if (line.includes(':')) {
+      const map: Record<string, string> = {};
+      for (const seg of line.split(',')) {
+        const [k, v] = seg.split(':');
+        if (k && v !== undefined) map[k.trim().toUpperCase()] = v.trim();
+      }
+      const t = Number(map['TEMP'] ?? map['TEMPERATURE']);
+      const h = Number(map['BPM'] ?? map['HR'] ?? map['HEARTRATE']);
+      if (Number.isFinite(t) && Number.isFinite(h)) {
+        const tempStatus = map['TEMP_STATUS'] as 'NORMAL' | 'ABNORMAL' | undefined;
+        const heartStatus = map['HEART_STATUS'] as 'NORMAL' | 'ABNORMAL' | undefined;
+        // Derive a coarse activity value from heart-rate deviation so the
+        // "active/idle" indicator works until a real accelerometer is added.
+        const activity = Math.min(100, Math.max(0, Math.abs(h - 70)));
+        return {
+          temperature: t,
+          heartRate: h,
+          activity,
+          tempStatus,
+          heartStatus,
+          timestamp: Date.now(),
+        };
+      }
+      return null;
+    }
+
+    // Bare CSV "temp,hr,activity"
     const parts = line.split(',').map(p => Number(p.trim()));
-    if (parts.length >= 2 && parts.every(n => Number.isFinite(n))) {
+    if (parts.length >= 2 && parts.slice(0, 2).every(n => Number.isFinite(n))) {
       return {
         temperature: parts[0],
         heartRate: parts[1],
-        activity: parts[2] ?? 0,
+        activity: Number.isFinite(parts[2]) ? parts[2] : 0,
         timestamp: Date.now(),
       };
     }
