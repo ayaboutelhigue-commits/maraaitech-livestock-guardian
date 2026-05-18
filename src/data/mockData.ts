@@ -2,9 +2,9 @@ export interface Animal {
   id: string;
   name: string;
   collarId: string;
-  temperature: number;
-  heartRate: number;
-  motion: 'active' | 'idle';
+  temperature: number | null;
+  heartRate: number | null;
+  motion: 'active' | 'idle' | null;
   lat: number;
   lng: number;
   status: 'online' | 'offline';
