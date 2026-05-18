@@ -87,21 +87,21 @@ const DashboardPage = () => {
             <div className="grid grid-cols-3 gap-3">
               <div className="rounded-xl bg-muted/60 p-3 text-center">
                 <Thermometer className="mx-auto mb-1 h-4 w-4 text-muted-foreground" />
-                <p className={`text-lg font-bold ${animal.temperature > 40 || animal.temperature < 35 ? 'text-destructive' : 'text-foreground'}`}>
-                  {animal.temperature}°
+                <p className={`text-lg font-bold ${animal.temperature != null && (animal.temperature > 40 || animal.temperature < 35) ? 'text-destructive' : 'text-foreground'}`}>
+                  {animal.temperature != null ? `${animal.temperature}°` : '—'}
                 </p>
                 <p className="text-[10px] text-muted-foreground">{t('temp')}</p>
               </div>
               <div className="rounded-xl bg-muted/60 p-3 text-center">
                 <Heart className="mx-auto mb-1 h-4 w-4 text-muted-foreground" />
-                <p className={`text-lg font-bold ${animal.heartRate > 100 || animal.heartRate < 50 ? 'text-destructive' : 'text-foreground'}`}>
-                  {animal.heartRate}
+                <p className={`text-lg font-bold ${animal.heartRate != null && (animal.heartRate > 100 || animal.heartRate < 50) ? 'text-destructive' : 'text-foreground'}`}>
+                  {animal.heartRate ?? '—'}
                 </p>
                 <p className="text-[10px] text-muted-foreground">BPM</p>
               </div>
               <div className="rounded-xl bg-muted/60 p-3 text-center">
                 <Activity className="mx-auto mb-1 h-4 w-4 text-muted-foreground" />
-                <p className="text-sm font-bold text-foreground">{t(`status.${animal.motion}`)}</p>
+                <p className="text-sm font-bold text-foreground">{animal.motion ? t(`status.${animal.motion}`) : '—'}</p>
                 <p className="text-[10px] text-muted-foreground">{t('motion')}</p>
               </div>
             </div>

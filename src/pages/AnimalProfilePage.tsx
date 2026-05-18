@@ -87,9 +87,9 @@ const AnimalProfilePage = () => {
       {/* Info Grid */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: Thermometer, label: t('temp'), value: `${animal.temperature}°C`, alert: animal.temperature > 40 || animal.temperature < 35 },
-          { icon: Heart, label: t('heart'), value: `${animal.heartRate} BPM`, alert: animal.heartRate > 100 || animal.heartRate < 50 },
-          { icon: Activity, label: t('motion'), value: t(`status.${animal.motion}`), alert: false },
+          { icon: Thermometer, label: t('temp'), value: animal.temperature != null ? `${animal.temperature}°C` : '—', alert: animal.temperature != null && (animal.temperature > 40 || animal.temperature < 35) },
+          { icon: Heart, label: t('heart'), value: animal.heartRate != null ? `${animal.heartRate} BPM` : '—', alert: animal.heartRate != null && (animal.heartRate > 100 || animal.heartRate < 50) },
+          { icon: Activity, label: t('motion'), value: animal.motion ? t(`status.${animal.motion}`) : '—', alert: false },
           { icon: MapPin, label: t('profile.location'), value: `${animal.lat.toFixed(4)}, ${animal.lng.toFixed(4)}`, alert: false },
         ].map((item, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
