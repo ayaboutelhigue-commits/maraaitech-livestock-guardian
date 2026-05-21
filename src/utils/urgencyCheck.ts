@@ -7,18 +7,13 @@ import { Animal } from '@/data/mockData';
  */
 export function isDangerous(animal: Animal): boolean {
   const { temperature: temp, heartRate: hr, motion } = animal;
+  if (temp == null || hr == null) return false;
 
-  // Very high fever
   if (temp > 40.5) return true;
-
-  // Hypothermia
   if (temp < 35) return true;
-
-  // Extreme heart rate
   if (hr > 120 || hr < 40) return true;
-
-  // High temp + high HR + no movement (collapse risk)
   if (temp >= 40 && hr >= 100 && motion === 'idle') return true;
 
   return false;
 }
+
