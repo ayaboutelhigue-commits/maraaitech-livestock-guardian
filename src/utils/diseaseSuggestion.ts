@@ -17,8 +17,10 @@ const diseases: DiseaseSuggestion[] = [
 
 export function suggestDiseases(animal: Animal, lang: Lang): string[] {
   const { temperature: temp, heartRate: hr, motion } = animal;
+  if (temp == null || hr == null) return [];
   const isIdle = motion === 'idle';
   const suggestions: string[] = [];
+
 
   // Mastitis: temp 39.5–41, reduced movement
   if (temp >= 39.5 && temp <= 41 && isIdle) {
