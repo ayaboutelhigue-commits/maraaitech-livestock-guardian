@@ -51,13 +51,18 @@ export const useUserAnimals = (): Animal[] => {
 
   return base.map(a => {
     if (ble.connected && ble.reading && a.id === targetId) {
+      const r = ble.reading;
+      const motion: 'active' | 'idle' = r.motion ?? (r.activity > 30 ? 'active' : 'idle');
+      const activityStatus = r.activityStatus
+        ?? (r.activity > 70 || r.activity < 5 ? 'ABNORMAL' : 'NORMAL');
       return {
         ...a,
-        temperature: Number(ble.reading.temperature.toFixed(1)),
-        heartRate: Math.round(ble.reading.heartRate),
-        motion: (ble.reading.activity > 30 ? 'active' : 'idle') as 'active' | 'idle',
+        temperature: Number(r.temperature.toFixed(1)),
+        heartRate: Math.round(r.heartRate),
+        motion,
+        activityStatus,
         status: 'online' as const,
-        timestamp: ble.reading.timestamp,
+        timestamp: r.timestamp,
       };
     }
     return a;
