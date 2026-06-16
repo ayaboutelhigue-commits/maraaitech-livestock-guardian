@@ -15,6 +15,8 @@ export interface SensorReading {
   activity: number;
   tempStatus?: 'NORMAL' | 'ABNORMAL';
   heartStatus?: 'NORMAL' | 'ABNORMAL';
+  activityStatus?: 'NORMAL' | 'ABNORMAL';
+  motion?: 'active' | 'idle';
   timestamp: number;
 }
 
