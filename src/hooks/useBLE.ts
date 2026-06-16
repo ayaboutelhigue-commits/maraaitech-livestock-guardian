@@ -1,10 +1,9 @@
 /// <reference types="web-bluetooth" />
 import { useCallback, useRef, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { BleClient, numbersToDataView, dataViewToText, ScanResult } from '@capacitor-community/bluetooth-le';
 
-// UUIDs must match the ESP32 firmware (ESP32_HealthMonitor):
-//   BLEDevice::init("ESP32_HealthMonitor");
-//   SERVICE_UUID        "12345678-1234-1234-1234-123456789abc"
-//   CHARACTERISTIC_UUID "abcdefab-1234-5678-1234-abcdefabcdef"  (NOTIFY + READ)
+// UUIDs must match the ESP32 firmware (ESP32_HealthMonitor).
 export const HEALTH_SERVICE = '12345678-1234-1234-1234-123456789abc';
 export const HEALTH_CHAR    = 'abcdefab-1234-5678-1234-abcdefabcdef';
 export const DEVICE_NAME_PREFIX = 'ESP32_HealthMonitor';
@@ -29,6 +28,8 @@ interface BLEState {
   history: SensorReading[];
 }
 
+const isNative = () => Capacitor.isNativePlatform();
+
 export function useBLE() {
   const [state, setState] = useState<BLEState>({
     connected: false,
@@ -39,20 +40,15 @@ export function useBLE() {
     history: [],
   });
 
-  const deviceRef = useRef<BluetoothDevice | null>(null);
+  const webDeviceRef = useRef<BluetoothDevice | null>(null);
+  const nativeDeviceIdRef = useRef<string | null>(null);
   const bufferRef = useRef<string>('');
 
-  const isSupported = typeof navigator !== 'undefined' && !!(navigator as any).bluetooth;
+  const isSupported =
+    isNative() ||
+    (typeof navigator !== 'undefined' && !!(navigator as any).bluetooth);
 
-  const handleData = useCallback((event: Event) => {
-    const target = event.target as BluetoothRemoteGATTCharacteristic;
-    const value = target.value;
-    if (!value) return;
-    const decoder = new TextDecoder();
-    const chunk = decoder.decode(value);
-
-    // The firmware sends one full payload per notify() without a newline,
-    // but we still handle newline-delimited streams gracefully.
+  const ingestText = useCallback((chunk: string) => {
     bufferRef.current += chunk;
     const parts = bufferRef.current.split(/\r?\n/);
     bufferRef.current = parts.length > 1 ? (parts.pop() ?? '') : '';
@@ -72,52 +68,115 @@ export function useBLE() {
     }
   }, []);
 
+  const handleWebData = useCallback((event: Event) => {
+    const target = event.target as BluetoothRemoteGATTCharacteristic;
+    const value = target.value;
+    if (!value) return;
+    ingestText(new TextDecoder().decode(value));
+  }, [ingestText]);
+
   const onDisconnected = useCallback(() => {
     setState(s => ({ ...s, connected: false, connecting: false }));
   }, []);
 
+  const connectNative = useCallback(async () => {
+    await BleClient.initialize({ androidNeverForLocation: true });
+
+    const device = await BleClient.requestDevice({
+      services: [HEALTH_SERVICE],
+      namePrefix: DEVICE_NAME_PREFIX,
+      optionalServices: [HEALTH_SERVICE],
+    });
+
+    nativeDeviceIdRef.current = device.deviceId;
+
+    await BleClient.connect(device.deviceId, () => onDisconnected());
+
+    await BleClient.startNotifications(
+      device.deviceId,
+      HEALTH_SERVICE,
+      HEALTH_CHAR,
+      (value) => {
+        try {
+          ingestText(dataViewToText(value));
+        } catch {
+          /* ignore decode error */
+        }
+      }
+    );
+
+    // Prime UI with READ value if available
+    try {
+      const initial = await BleClient.read(device.deviceId, HEALTH_SERVICE, HEALTH_CHAR);
+      const text = dataViewToText(initial);
+      const reading = parseLine(text.trim());
+      if (reading) {
+        setState(s => ({ ...s, reading, history: [...s.history, reading] }));
+      }
+    } catch {
+      /* read not supported */
+    }
+
+    setState(s => ({
+      ...s,
+      connected: true,
+      connecting: false,
+      deviceName: device.name ?? 'ESP32_HealthMonitor',
+    }));
+  }, [ingestText, onDisconnected]);
+
+  const connectWeb = useCallback(async () => {
+    const device = await (navigator as any).bluetooth.requestDevice({
+      filters: [
+        { services: [HEALTH_SERVICE] },
+        { namePrefix: DEVICE_NAME_PREFIX },
+      ],
+      optionalServices: [HEALTH_SERVICE],
+    });
+    webDeviceRef.current = device;
+    device.addEventListener('gattserverdisconnected', onDisconnected);
+
+    const server = await device.gatt!.connect();
+    const service = await server.getPrimaryService(HEALTH_SERVICE);
+    const char = await service.getCharacteristic(HEALTH_CHAR);
+
+    await char.startNotifications();
+    char.addEventListener('characteristicvaluechanged', handleWebData);
+
+    try {
+      const initial = await char.readValue();
+      const text = new TextDecoder().decode(initial);
+      const reading = parseLine(text.trim());
+      if (reading) {
+        setState(s => ({ ...s, reading, history: [...s.history, reading] }));
+      }
+    } catch {
+      /* read not supported */
+    }
+
+    setState(s => ({
+      ...s,
+      connected: true,
+      connecting: false,
+      deviceName: device.name ?? 'ESP32_HealthMonitor',
+    }));
+  }, [handleWebData, onDisconnected]);
+
   const connect = useCallback(async () => {
     if (!isSupported) {
-      setState(s => ({ ...s, error: 'Web Bluetooth is not supported. Use Chrome or Edge on Android/Desktop.' }));
+      setState(s => ({
+        ...s,
+        error: 'Bluetooth is not supported on this device. Use the installed mobile app, or Chrome/Edge on desktop.',
+      }));
       return;
     }
     setState(s => ({ ...s, connecting: true, error: null }));
     try {
-      const device = await (navigator as any).bluetooth.requestDevice({
-        filters: [
-          { services: [HEALTH_SERVICE] },
-          { namePrefix: DEVICE_NAME_PREFIX },
-        ],
-        optionalServices: [HEALTH_SERVICE],
-      });
-      deviceRef.current = device;
-      device.addEventListener('gattserverdisconnected', onDisconnected);
-
-      const server = await device.gatt!.connect();
-      const service = await server.getPrimaryService(HEALTH_SERVICE);
-      const char = await service.getCharacteristic(HEALTH_CHAR);
-
-      await char.startNotifications();
-      char.addEventListener('characteristicvaluechanged', handleData);
-
-      // Prime UI with the initial READ value, if available.
-      try {
-        const initial = await char.readValue();
-        const text = new TextDecoder().decode(initial);
-        const reading = parseLine(text.trim());
-        if (reading) {
-          setState(s => ({ ...s, reading, history: [...s.history, reading] }));
-        }
-      } catch {
-        /* read not supported — notifications will deliver data */
+      if (isNative()) {
+        await connectNative();
+      } else {
+        await connectWeb();
       }
-
-      setState(s => ({
-        ...s,
-        connected: true,
-        connecting: false,
-        deviceName: device.name ?? 'ESP32_HealthMonitor',
-      }));
     } catch (err: any) {
       setState(s => ({
         ...s,
@@ -126,12 +185,20 @@ export function useBLE() {
         error: err?.message ?? String(err),
       }));
     }
-  }, [handleData, isSupported, onDisconnected]);
+  }, [connectNative, connectWeb, isSupported]);
 
   const disconnect = useCallback(() => {
-    const dev = deviceRef.current;
-    if (dev?.gatt?.connected) dev.gatt.disconnect();
-    deviceRef.current = null;
+    if (isNative()) {
+      const id = nativeDeviceIdRef.current;
+      if (id) {
+        BleClient.disconnect(id).catch(() => undefined);
+      }
+      nativeDeviceIdRef.current = null;
+    } else {
+      const dev = webDeviceRef.current;
+      if (dev?.gatt?.connected) dev.gatt.disconnect();
+      webDeviceRef.current = null;
+    }
     setState(s => ({ ...s, connected: false }));
   }, []);
 
@@ -140,13 +207,12 @@ export function useBLE() {
 
 /**
  * Parses the firmware payload:
- *   "TEMP:36.50,TEMP_STATUS:NORMAL,BPM:75,HEART_STATUS:NORMAL"
- * Also accepts JSON {temp, hr, activity} and bare "temp,hr,activity" for backward compatibility.
+ *   "TEMP:36.50,TEMP_STATUS:NORMAL,BPM:75,HEART_STATUS:NORMAL,ACT:12,ACT_STATUS:NORMAL"
+ * Also accepts JSON {temp, hr, activity} and bare "temp,hr,activity".
  */
 function parseLine(line: string): SensorReading | null {
   if (!line) return null;
   try {
-    // JSON form
     if (line.startsWith('{')) {
       const obj = JSON.parse(line);
       const t = Number(obj.temp ?? obj.temperature ?? obj.TEMP);
@@ -158,7 +224,6 @@ function parseLine(line: string): SensorReading | null {
       return null;
     }
 
-    // KEY:VALUE,KEY:VALUE — firmware format
     if (line.includes(':')) {
       const map: Record<string, string> = {};
       for (const seg of line.split(',')) {
@@ -170,7 +235,6 @@ function parseLine(line: string): SensorReading | null {
       if (Number.isFinite(t) && Number.isFinite(h)) {
         const tempStatus = map['TEMP_STATUS'] as 'NORMAL' | 'ABNORMAL' | undefined;
         const heartStatus = map['HEART_STATUS'] as 'NORMAL' | 'ABNORMAL' | undefined;
-        // Parse activity from MPU6050 (numeric magnitude) and optional status keyword.
         const actRaw = map['ACT'] ?? map['ACTIVITY'] ?? map['MOTION'];
         const actStatusRaw = (map['ACT_STATUS'] ?? map['ACTIVITY_STATUS'] ?? map['MOTION_STATUS'])?.toUpperCase();
         let activity = Number(actRaw);
@@ -180,7 +244,6 @@ function parseLine(line: string): SensorReading | null {
           if (u === 'ACTIVE' || u === 'IDLE') motion = u.toLowerCase() as 'active' | 'idle';
         }
         if (!Number.isFinite(activity)) {
-          // Fallback: derive coarse activity from HR deviation.
           activity = Math.min(100, Math.max(0, Math.abs(h - 70)));
         }
         if (!motion) motion = activity > 30 ? 'active' : 'idle';
@@ -201,7 +264,6 @@ function parseLine(line: string): SensorReading | null {
       return null;
     }
 
-    // Bare CSV "temp,hr,activity"
     const parts = line.split(',').map(p => Number(p.trim()));
     if (parts.length >= 2 && parts.slice(0, 2).every(n => Number.isFinite(n))) {
       return {
