@@ -9,7 +9,7 @@ import { readFarmConfig, useUserAnimals } from '@/hooks/useUserAnimals';
 import { findClosestVet } from '@/data/vets';
 import { Animal } from '@/data/mockData';
 
-type AlertItem = { type: 'temp_high' | 'temp_low' | 'heart_high' | 'heart_low'; value: number; icon: typeof Thermometer };
+type AlertItem = { type: 'temp_high' | 'temp_low' | 'heart_high' | 'heart_low' | 'activity_abnormal'; value: number | string; icon: typeof Thermometer };
 
 function computeAlerts(a: Animal): AlertItem[] {
   const out: AlertItem[] = [];
@@ -20,6 +20,9 @@ function computeAlerts(a: Animal): AlertItem[] {
   if (a.heartRate != null) {
     if (a.heartRate > 100) out.push({ type: 'heart_high', value: a.heartRate, icon: Heart });
     else if (a.heartRate < 50) out.push({ type: 'heart_low', value: a.heartRate, icon: Heart });
+  }
+  if (a.activityStatus === 'ABNORMAL') {
+    out.push({ type: 'activity_abnormal', value: a.motion ?? '—', icon: Activity });
   }
   return out;
 }
@@ -105,8 +108,10 @@ const AlertsPage = () => {
                   <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
                     <Heart className="h-3.5 w-3.5" /> {animal.heartRate} BPM
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
-                    <Activity className="h-3.5 w-3.5" /> {animal.motion ?? '—'}
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${animal.activityStatus === 'ABNORMAL' ? 'bg-destructive/10 text-destructive' : 'bg-muted'}`}>
+                    <Activity className="h-3.5 w-3.5" />
+                    {animal.motion ?? '—'}
+                    {animal.activityStatus && <span className="ml-1 text-[10px] font-semibold">· {animal.activityStatus}</span>}
                   </span>
                 </div>
 
@@ -118,7 +123,7 @@ const AlertsPage = () => {
                         <a.icon className="h-4 w-4 text-destructive" />
                         <span className="font-medium">{t(`alert.${a.type}`)}</span>
                         <span className="text-muted-foreground">
-                          — {a.value}{a.type.includes('temp') ? '°C' : ' BPM'}
+                          — {a.value}{a.type.startsWith('temp') ? '°C' : a.type.startsWith('heart') ? ' BPM' : ''}
                         </span>
                       </li>
                     ))}

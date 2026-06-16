@@ -5,6 +5,7 @@ export interface Animal {
   temperature: number | null;
   heartRate: number | null;
   motion: 'active' | 'idle' | null;
+  activityStatus?: 'NORMAL' | 'ABNORMAL' | null;
   lat: number;
   lng: number;
   status: 'online' | 'offline';

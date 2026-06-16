@@ -100,9 +100,13 @@ const DashboardPage = () => {
                 <p className="text-[10px] text-muted-foreground">BPM</p>
               </div>
               <div className="rounded-xl bg-muted/60 p-3 text-center">
-                <Activity className="mx-auto mb-1 h-4 w-4 text-muted-foreground" />
-                <p className="text-sm font-bold text-foreground">{animal.motion ? t(`status.${animal.motion}`) : '—'}</p>
-                <p className="text-[10px] text-muted-foreground">{t('motion')}</p>
+                <Activity className={`mx-auto mb-1 h-4 w-4 ${animal.activityStatus === 'ABNORMAL' ? 'text-destructive' : 'text-muted-foreground'}`} />
+                <p className={`text-sm font-bold ${animal.activityStatus === 'ABNORMAL' ? 'text-destructive' : 'text-foreground'}`}>
+                  {animal.motion ? t(`status.${animal.motion}`) : '—'}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {animal.activityStatus ? animal.activityStatus : t('motion')}
+                </p>
               </div>
             </div>
           </motion.div>

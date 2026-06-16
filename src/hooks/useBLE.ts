@@ -15,6 +15,8 @@ export interface SensorReading {
   activity: number;
   tempStatus?: 'NORMAL' | 'ABNORMAL';
   heartStatus?: 'NORMAL' | 'ABNORMAL';
+  activityStatus?: 'NORMAL' | 'ABNORMAL';
+  motion?: 'active' | 'idle';
   timestamp: number;
 }
 
@@ -168,15 +170,31 @@ function parseLine(line: string): SensorReading | null {
       if (Number.isFinite(t) && Number.isFinite(h)) {
         const tempStatus = map['TEMP_STATUS'] as 'NORMAL' | 'ABNORMAL' | undefined;
         const heartStatus = map['HEART_STATUS'] as 'NORMAL' | 'ABNORMAL' | undefined;
-        // Derive a coarse activity value from heart-rate deviation so the
-        // "active/idle" indicator works until a real accelerometer is added.
-        const activity = Math.min(100, Math.max(0, Math.abs(h - 70)));
+        // Parse activity from MPU6050 (numeric magnitude) and optional status keyword.
+        const actRaw = map['ACT'] ?? map['ACTIVITY'] ?? map['MOTION'];
+        const actStatusRaw = (map['ACT_STATUS'] ?? map['ACTIVITY_STATUS'] ?? map['MOTION_STATUS'])?.toUpperCase();
+        let activity = Number(actRaw);
+        let motion: 'active' | 'idle' | undefined;
+        if (typeof actRaw === 'string') {
+          const u = actRaw.toUpperCase();
+          if (u === 'ACTIVE' || u === 'IDLE') motion = u.toLowerCase() as 'active' | 'idle';
+        }
+        if (!Number.isFinite(activity)) {
+          // Fallback: derive coarse activity from HR deviation.
+          activity = Math.min(100, Math.max(0, Math.abs(h - 70)));
+        }
+        if (!motion) motion = activity > 30 ? 'active' : 'idle';
+        const activityStatus = (actStatusRaw === 'NORMAL' || actStatusRaw === 'ABNORMAL')
+          ? (actStatusRaw as 'NORMAL' | 'ABNORMAL')
+          : undefined;
         return {
           temperature: t,
           heartRate: h,
           activity,
           tempStatus,
           heartStatus,
+          activityStatus,
+          motion,
           timestamp: Date.now(),
         };
       }

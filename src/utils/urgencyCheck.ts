@@ -6,13 +6,14 @@ import { Animal } from '@/data/mockData';
  * or combination of high temp + idle + high HR.
  */
 export function isDangerous(animal: Animal): boolean {
-  const { temperature: temp, heartRate: hr, motion } = animal;
+  const { temperature: temp, heartRate: hr, motion, activityStatus } = animal;
   if (temp == null || hr == null) return false;
 
   if (temp > 40.5) return true;
   if (temp < 35) return true;
   if (hr > 120 || hr < 40) return true;
   if (temp >= 40 && hr >= 100 && motion === 'idle') return true;
+  if (activityStatus === 'ABNORMAL' && (temp >= 39.5 || hr >= 100)) return true;
 
   return false;
 }
