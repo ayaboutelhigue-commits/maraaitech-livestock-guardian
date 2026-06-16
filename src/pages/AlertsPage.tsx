@@ -108,8 +108,10 @@ const AlertsPage = () => {
                   <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
                     <Heart className="h-3.5 w-3.5" /> {animal.heartRate} BPM
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
-                    <Activity className="h-3.5 w-3.5" /> {animal.motion ?? '—'}
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${animal.activityStatus === 'ABNORMAL' ? 'bg-destructive/10 text-destructive' : 'bg-muted'}`}>
+                    <Activity className="h-3.5 w-3.5" />
+                    {animal.motion ?? '—'}
+                    {animal.activityStatus && <span className="ml-1 text-[10px] font-semibold">· {animal.activityStatus}</span>}
                   </span>
                 </div>
 
