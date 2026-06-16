@@ -1,0 +1,19 @@
+{
+  "appId": "app.lovable.c40c4dc8dc424ed68b21130d664c147c",
+  "appName": "MarAAI",
+  "webDir": "dist",
+  "server": {
+    "url": "https://c40c4dc8-dc42-4ed6-8b21-130d664c147c.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
+  "plugins": {
+    "BluetoothLe": {
+      "displayStrings": {
+        "scanning": "Scanning for ESP32 collar...",
+        "cancel": "Cancel",
+        "availableDevices": "Available collars",
+        "noDeviceFound": "No collar found"
+      }
+    }
+  }
+}
