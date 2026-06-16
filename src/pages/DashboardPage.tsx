@@ -1,7 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import { mockAlerts } from '@/data/mockData';
 import { useUserAnimals } from '@/hooks/useUserAnimals';
 import { useBLEContext } from '@/contexts/BLEContext';
+import { isDangerous } from '@/utils/urgencyCheck';
 import { motion } from 'framer-motion';
 import { PawPrint, Wifi, WifiOff, AlertTriangle, Thermometer, Heart, Activity, BluetoothConnected } from 'lucide-react';
 
@@ -11,7 +11,11 @@ const DashboardPage = () => {
   const animals = useUserAnimals();
   const online = animals.filter(a => a.status === 'online').length;
   const offline = animals.length - online;
-  const activeAlerts = mockAlerts.filter(a => !a.read).length;
+  const activeAlerts = animals.filter(a => isDangerous(a)
+    || (a.temperature != null && (a.temperature > 40 || a.temperature < 35))
+    || (a.heartRate != null && (a.heartRate > 100 || a.heartRate < 50))
+    || a.activityStatus === 'ABNORMAL'
+  ).length;
 
   const stats = [
     { label: t('dash.total'), value: animals.length, icon: PawPrint, color: 'text-primary' },
