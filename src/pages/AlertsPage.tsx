@@ -9,7 +9,7 @@ import { readFarmConfig, useUserAnimals } from '@/hooks/useUserAnimals';
 import { findClosestVet } from '@/data/vets';
 import { Animal } from '@/data/mockData';
 
-type AlertItem = { type: 'temp_high' | 'temp_low' | 'heart_high' | 'heart_low'; value: number; icon: typeof Thermometer };
+type AlertItem = { type: 'temp_high' | 'temp_low' | 'heart_high' | 'heart_low' | 'activity_abnormal'; value: number | string; icon: typeof Thermometer };
 
 function computeAlerts(a: Animal): AlertItem[] {
   const out: AlertItem[] = [];
@@ -20,6 +20,9 @@ function computeAlerts(a: Animal): AlertItem[] {
   if (a.heartRate != null) {
     if (a.heartRate > 100) out.push({ type: 'heart_high', value: a.heartRate, icon: Heart });
     else if (a.heartRate < 50) out.push({ type: 'heart_low', value: a.heartRate, icon: Heart });
+  }
+  if (a.activityStatus === 'ABNORMAL') {
+    out.push({ type: 'activity_abnormal', value: a.motion ?? '—', icon: Activity });
   }
   return out;
 }
