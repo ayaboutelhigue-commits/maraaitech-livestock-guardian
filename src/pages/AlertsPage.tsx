@@ -123,7 +123,7 @@ const AlertsPage = () => {
                         <a.icon className="h-4 w-4 text-destructive" />
                         <span className="font-medium">{t(`alert.${a.type}`)}</span>
                         <span className="text-muted-foreground">
-                          — {a.value}{a.type.includes('temp') ? '°C' : ' BPM'}
+                          — {a.value}{a.type.startsWith('temp') ? '°C' : a.type.startsWith('heart') ? ' BPM' : ''}
                         </span>
                       </li>
                     ))}
