@@ -1,7 +1,7 @@
 /// <reference types="web-bluetooth" />
 import { useCallback, useRef, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { BleClient, numbersToDataView, dataViewToText, ScanResult } from '@capacitor-community/bluetooth-le';
+import { BleClient, dataViewToText } from '@capacitor-community/bluetooth-le';
 
 // UUIDs must match the ESP32 firmware (ESP32_HealthMonitor).
 export const HEALTH_SERVICE = '12345678-1234-1234-1234-123456789abc';
