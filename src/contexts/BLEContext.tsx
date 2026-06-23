@@ -11,6 +11,9 @@ interface BLEContextValue {
   history: SensorReading[];
   connect: () => Promise<void>;
   disconnect: () => void;
+  startSimulation: () => void;
+  stopSimulation: () => void;
+  simulating: boolean;
   boundAnimalId: string | null;
   bindAnimal: (id: string | null) => void;
 }
