@@ -190,6 +190,10 @@ export function useBLE() {
   }, [connectNative, connectWeb, isSupported]);
 
   const disconnect = useCallback(() => {
+    if (simTimerRef.current) {
+      clearInterval(simTimerRef.current);
+      simTimerRef.current = null;
+    }
     if (isNative()) {
       const id = nativeDeviceIdRef.current;
       if (id) {
@@ -201,10 +205,62 @@ export function useBLE() {
       if (dev?.gatt?.connected) dev.gatt.disconnect();
       webDeviceRef.current = null;
     }
-    setState(s => ({ ...s, connected: false }));
+    setState(s => ({ ...s, connected: false, deviceName: null }));
   }, []);
 
-  return { ...state, isSupported, connect, disconnect };
+  const startSimulation = useCallback(() => {
+    if (simTimerRef.current) return;
+    // Sequences cycle every second
+    const temps = [37.0, 37.2, 37.5, 38.0, 38.3, 38.6, 39.0, 39.4, 39.8, 40.2];
+    const hrs   = [60, 61, 62, 61, 63, 65, 70, 78, 90, 105];
+    const motions: Array<{ motion: 'idle' | 'active'; activity: number; status: 'NORMAL' | 'ABNORMAL'; label: string }> = [
+      { motion: 'idle',   activity: 2,  status: 'NORMAL',   label: 'sleep' },
+      { motion: 'active', activity: 25, status: 'NORMAL',   label: 'walk' },
+      { motion: 'active', activity: 60, status: 'NORMAL',   label: 'run' },
+      { motion: 'active', activity: 95, status: 'ABNORMAL', label: 'abnormal' },
+    ];
+
+    simStepRef.current = 0;
+    setState(s => ({
+      ...s,
+      connected: true,
+      connecting: false,
+      deviceName: 'Simulator',
+      error: null,
+    }));
+
+    const tick = () => {
+      const i = simStepRef.current++;
+      const t = temps[i % temps.length];
+      const h = hrs[i % hrs.length];
+      const m = motions[i % motions.length];
+      const reading: SensorReading = {
+        temperature: t,
+        heartRate: h,
+        activity: m.activity,
+        tempStatus: t >= 39.5 || t < 37 ? 'ABNORMAL' : 'NORMAL',
+        heartStatus: h >= 100 || h < 50 ? 'ABNORMAL' : 'NORMAL',
+        activityStatus: m.status,
+        motion: m.motion,
+        timestamp: Date.now(),
+      };
+      setState(s => ({ ...s, reading, history: [...s.history.slice(-99), reading] }));
+    };
+    tick();
+    simTimerRef.current = setInterval(tick, 1000);
+  }, []);
+
+  const stopSimulation = useCallback(() => {
+    if (simTimerRef.current) {
+      clearInterval(simTimerRef.current);
+      simTimerRef.current = null;
+    }
+    setState(s => ({ ...s, connected: false, deviceName: null }));
+  }, []);
+
+  const simulating = state.deviceName === 'Simulator' && state.connected;
+
+  return { ...state, isSupported, connect, disconnect, startSimulation, stopSimulation, simulating };
 }
 
 /**
