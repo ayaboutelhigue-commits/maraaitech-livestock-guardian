@@ -103,6 +103,7 @@ const AnimalsPage = () => {
               <th className="px-4 py-3 text-start font-medium text-muted-foreground">{t('animal.collar')}</th>
               <th className="px-4 py-3 text-start font-medium text-muted-foreground">{t('temp')}</th>
               <th className="px-4 py-3 text-start font-medium text-muted-foreground">{t('heart')}</th>
+              <th className="px-4 py-3 text-start font-medium text-muted-foreground">{t('motion')}</th>
               <th className="px-4 py-3 text-end font-medium text-muted-foreground"></th>
             </tr>
           </thead>
@@ -114,6 +115,10 @@ const AnimalsPage = () => {
                 <td className="px-4 py-3 text-muted-foreground">{a.collarId}</td>
                 <td className="px-4 py-3 text-foreground">{a.temperature != null ? `${a.temperature}°C` : '—'}</td>
                 <td className="px-4 py-3 text-foreground">{a.heartRate != null ? `${a.heartRate} BPM` : '—'}</td>
+                <td className={`px-4 py-3 ${a.activityStatus === 'ABNORMAL' ? 'text-destructive font-medium' : 'text-foreground'}`}>
+                  {a.motion ? t(`status.${a.motion}`) : '—'}
+                  {a.activityStatus && <span className="ml-1 text-xs text-muted-foreground">({a.activityStatus})</span>}
+                </td>
                 <td className="px-4 py-3 text-end">
                   <button onClick={() => navigate(`/animals/${a.id}`)} className="rounded p-1.5 text-primary hover:bg-primary/10"><Eye className="h-4 w-4" /></button>
                   <button onClick={() => handleEdit(a)} className="rounded p-1.5 text-muted-foreground hover:bg-muted"><Pencil className="h-4 w-4" /></button>
