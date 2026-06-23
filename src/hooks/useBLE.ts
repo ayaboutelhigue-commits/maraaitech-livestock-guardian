@@ -43,6 +43,8 @@ export function useBLE() {
   const webDeviceRef = useRef<BluetoothDevice | null>(null);
   const nativeDeviceIdRef = useRef<string | null>(null);
   const bufferRef = useRef<string>('');
+  const simTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const simStepRef = useRef<number>(0);
 
   const isSupported =
     isNative() ||
