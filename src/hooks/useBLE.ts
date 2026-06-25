@@ -247,7 +247,7 @@ export function useBLE() {
       setState(s => ({ ...s, reading, history: [...s.history.slice(-99), reading] }));
     };
     tick();
-    simTimerRef.current = setInterval(tick, 1000);
+    simTimerRef.current = setInterval(tick, 3000);
   }, []);
 
   const stopSimulation = useCallback(() => {
