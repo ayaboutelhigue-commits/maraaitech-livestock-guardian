@@ -239,7 +239,7 @@ export function useBLE() {
         temperature: t,
         heartRate: h,
         activity: m.activity,
-        tempStatus: t >= 39.5 || t < 37 ? 'ABNORMAL' : 'NORMAL',
+        tempStatus: t >= 38 || t < 36 ? 'ABNORMAL' : 'NORMAL',
         heartStatus: h >= 100 || h < 50 ? 'ABNORMAL' : 'NORMAL',
         activityStatus: m.status,
         motion: m.motion,
@@ -248,7 +248,7 @@ export function useBLE() {
       setState(s => ({ ...s, reading, history: [...s.history.slice(-99), reading] }));
     };
     tick();
-    simTimerRef.current = setInterval(tick, 3000);
+    simTimerRef.current = setInterval(tick, 20000);
   }, []);
 
   const stopSimulation = useCallback(() => {

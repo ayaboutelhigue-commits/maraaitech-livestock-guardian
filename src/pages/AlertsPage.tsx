@@ -15,7 +15,7 @@ function computeAlerts(a: Animal): AlertItem[] {
   const out: AlertItem[] = [];
   if (a.temperature != null) {
     if (a.temperature > 39.5) out.push({ type: 'temp_high', value: a.temperature, icon: Thermometer });
-    else if (a.temperature < 37.5) out.push({ type: 'temp_low', value: a.temperature, icon: Thermometer });
+    else if (a.temperature < 36) out.push({ type: 'temp_low', value: a.temperature, icon: Thermometer });
   }
   if (a.heartRate != null) {
     if (a.heartRate > 100) out.push({ type: 'heart_high', value: a.heartRate, icon: Heart });
