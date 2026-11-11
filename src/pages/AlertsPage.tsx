@@ -131,7 +131,7 @@ const AlertsPage = () => {
                 )}
 
                 {/* disease suggestions */}
-                {diseases.length > 0 && (
+                {inAlert && diseases.length > 0 && (
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Stethoscope className="h-3.5 w-3.5 text-amber-500" />
                     <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
