@@ -222,12 +222,25 @@ export function useBLE() {
     ];
 
     simStepRef.current = 0;
+    // Warm-up: show 0 values for 6s, then a new reading every 5s
+    const zero: SensorReading = {
+      temperature: 0,
+      heartRate: 0,
+      activity: 0,
+      tempStatus: 'NORMAL',
+      heartStatus: 'NORMAL',
+      activityStatus: 'NORMAL',
+      motion: 'idle',
+      timestamp: Date.now(),
+    };
     setState(s => ({
       ...s,
       connected: true,
       connecting: false,
       deviceName: 'Simulator',
       error: null,
+      reading: zero,
+      history: [...s.history.slice(-99), zero],
     }));
 
     const tick = () => {
