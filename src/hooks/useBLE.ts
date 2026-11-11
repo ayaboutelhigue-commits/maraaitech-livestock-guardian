@@ -260,8 +260,10 @@ export function useBLE() {
       };
       setState(s => ({ ...s, reading, history: [...s.history.slice(-99), reading] }));
     };
-    tick();
-    simTimerRef.current = setInterval(tick, 20000);
+    simTimerRef.current = setTimeout(() => {
+      tick();
+      simTimerRef.current = setInterval(tick, 5000);
+    }, 6000);
   }, []);
 
   const stopSimulation = useCallback(() => {
