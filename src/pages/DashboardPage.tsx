@@ -3,12 +3,18 @@ import { useUserAnimals } from '@/hooks/useUserAnimals';
 import { useBLEContext } from '@/contexts/BLEContext';
 import { isDangerous } from '@/utils/urgencyCheck';
 import { motion } from 'framer-motion';
-import { PawPrint, Wifi, WifiOff, AlertTriangle, Thermometer, Heart, Activity, BluetoothConnected } from 'lucide-react';
+import { PawPrint, Wifi, WifiOff, AlertTriangle, Thermometer, Heart, Activity, BluetoothConnected, Play, Square } from 'lucide-react';
 
 const DashboardPage = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const ble = useBLEContext();
   const animals = useUserAnimals();
+
+  const simLabels = {
+    en: { start: 'Virtual data', stop: 'Stop virtual data', hint: 'Human test readings every 20s' },
+    ar: { start: 'بيانات افتراضية', stop: 'إيقاف البيانات الافتراضية', hint: 'قراءات بشرية تجريبية كل 20 ثانية' },
+    fr: { start: 'Données virtuelles', stop: 'Arrêter les données virtuelles', hint: 'Mesures humaines de test toutes les 20 s' },
+  }[lang];
   const online = animals.filter(a => a.status === 'online').length;
   const offline = animals.length - online;
   const activeAlerts = animals.filter(a => isDangerous(a)
@@ -26,7 +32,25 @@ const DashboardPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-2xl font-bold text-foreground">{t('nav.dashboard')}</h1>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-foreground">{t('nav.dashboard')}</h1>
+        <div className="flex items-center gap-3">
+          {ble.simulating && (
+            <span className="text-xs text-muted-foreground">{simLabels.hint}</span>
+          )}
+          <button
+            onClick={ble.simulating ? ble.stopSimulation : ble.startSimulation}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition ${
+              ble.simulating
+                ? 'border border-border bg-background text-foreground hover:bg-muted'
+                : 'bg-primary text-primary-foreground hover:opacity-90'
+            }`}
+          >
+            {ble.simulating ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            {ble.simulating ? simLabels.stop : simLabels.start}
+          </button>
+        </div>
+      </div>
 
       {/* Stats */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
