@@ -32,7 +32,25 @@ const DashboardPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 text-2xl font-bold text-foreground">{t('nav.dashboard')}</h1>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-foreground">{t('nav.dashboard')}</h1>
+        <div className="flex items-center gap-3">
+          {ble.simulating && (
+            <span className="text-xs text-muted-foreground">{simLabels.hint}</span>
+          )}
+          <button
+            onClick={ble.simulating ? ble.stopSimulation : ble.startSimulation}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition ${
+              ble.simulating
+                ? 'border border-border bg-background text-foreground hover:bg-muted'
+                : 'bg-primary text-primary-foreground hover:opacity-90'
+            }`}
+          >
+            {ble.simulating ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            {ble.simulating ? simLabels.stop : simLabels.start}
+          </button>
+        </div>
+      </div>
 
       {/* Stats */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
