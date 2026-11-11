@@ -3,12 +3,18 @@ import { useUserAnimals } from '@/hooks/useUserAnimals';
 import { useBLEContext } from '@/contexts/BLEContext';
 import { isDangerous } from '@/utils/urgencyCheck';
 import { motion } from 'framer-motion';
-import { PawPrint, Wifi, WifiOff, AlertTriangle, Thermometer, Heart, Activity, BluetoothConnected } from 'lucide-react';
+import { PawPrint, Wifi, WifiOff, AlertTriangle, Thermometer, Heart, Activity, BluetoothConnected, Play, Square } from 'lucide-react';
 
 const DashboardPage = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const ble = useBLEContext();
   const animals = useUserAnimals();
+
+  const simLabels = {
+    en: { start: 'Virtual data', stop: 'Stop virtual data', hint: 'Human test readings every 20s' },
+    ar: { start: 'بيانات افتراضية', stop: 'إيقاف البيانات الافتراضية', hint: 'قراءات بشرية تجريبية كل 20 ثانية' },
+    fr: { start: 'Données virtuelles', stop: 'Arrêter les données virtuelles', hint: 'Mesures humaines de test toutes les 20 s' },
+  }[lang];
   const online = animals.filter(a => a.status === 'online').length;
   const offline = animals.length - online;
   const activeAlerts = animals.filter(a => isDangerous(a)
