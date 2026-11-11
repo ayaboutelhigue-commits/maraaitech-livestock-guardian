@@ -11,9 +11,9 @@ const DashboardPage = () => {
   const animals = useUserAnimals();
 
   const simLabels = {
-    en: { start: 'Virtual data', stop: 'Stop virtual data', hint: 'Human test readings every 20s' },
-    ar: { start: 'بيانات افتراضية', stop: 'إيقاف البيانات الافتراضية', hint: 'قراءات بشرية تجريبية كل 20 ثانية' },
-    fr: { start: 'Données virtuelles', stop: 'Arrêter les données virtuelles', hint: 'Mesures humaines de test toutes les 20 s' },
+    en: { start: 'Virtual data', stop: 'Stop virtual data', hint: 'Zeros for 6s, then a reading every 5s' },
+    ar: { start: 'بيانات افتراضية', stop: 'إيقاف البيانات الافتراضية', hint: 'أصفار لمدة 6 ثوانٍ ثم قراءة كل 5 ثوانٍ' },
+    fr: { start: 'Données virtuelles', stop: 'Arrêter les données virtuelles', hint: 'Zéros pendant 6 s, puis une mesure toutes les 5 s' },
   }[lang];
   const online = animals.filter(a => a.status === 'online').length;
   const offline = animals.length - online;
