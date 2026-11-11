@@ -15,7 +15,7 @@ function computeAlerts(a: Animal): AlertItem[] {
   const out: AlertItem[] = [];
   if (a.temperature != null) {
     if (a.temperature > 39.5) out.push({ type: 'temp_high', value: a.temperature, icon: Thermometer });
-    else if (a.temperature < 37.5) out.push({ type: 'temp_low', value: a.temperature, icon: Thermometer });
+    else if (a.temperature < 36) out.push({ type: 'temp_low', value: a.temperature, icon: Thermometer });
   }
   if (a.heartRate != null) {
     if (a.heartRate > 100) out.push({ type: 'heart_high', value: a.heartRate, icon: Heart });
@@ -131,7 +131,7 @@ const AlertsPage = () => {
                 )}
 
                 {/* disease suggestions */}
-                {diseases.length > 0 && (
+                {inAlert && diseases.length > 0 && (
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Stethoscope className="h-3.5 w-3.5 text-amber-500" />
                     <span className="text-xs font-medium text-amber-600 dark:text-amber-400">

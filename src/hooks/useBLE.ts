@@ -210,14 +210,15 @@ export function useBLE() {
 
   const startSimulation = useCallback(() => {
     if (simTimerRef.current) return;
-    // Sequences cycle every second
-    const temps = [37.0, 37.2, 37.5, 38.0, 38.3, 38.6, 39.0, 39.4, 39.8, 40.2];
-    const hrs   = [60, 61, 62, 61, 63, 65, 70, 78, 90, 105];
+    // Normal human vitals — one new reading every 20s
+    const temps = [36.5, 36.6, 36.8, 37.0, 37.1, 37.2, 37.0, 36.9, 36.7, 36.6];
+    const hrs   = [62, 64, 66, 68, 72, 76, 74, 68, 65, 63];
     const motions: Array<{ motion: 'idle' | 'active'; activity: number; status: 'NORMAL' | 'ABNORMAL'; label: string }> = [
-      { motion: 'idle',   activity: 2,  status: 'NORMAL',   label: 'sleep' },
-      { motion: 'active', activity: 25, status: 'NORMAL',   label: 'walk' },
-      { motion: 'active', activity: 60, status: 'NORMAL',   label: 'run' },
-      { motion: 'active', activity: 95, status: 'ABNORMAL', label: 'abnormal' },
+      { motion: 'idle',   activity: 6,  status: 'NORMAL', label: 'rest' },
+      { motion: 'active', activity: 22, status: 'NORMAL', label: 'walk' },
+      { motion: 'active', activity: 40, status: 'NORMAL', label: 'stairs' },
+      { motion: 'active', activity: 26, status: 'NORMAL', label: 'walk' },
+      { motion: 'idle',   activity: 9,  status: 'NORMAL', label: 'sit' },
     ];
 
     simStepRef.current = 0;
@@ -238,7 +239,7 @@ export function useBLE() {
         temperature: t,
         heartRate: h,
         activity: m.activity,
-        tempStatus: t >= 39.5 || t < 37 ? 'ABNORMAL' : 'NORMAL',
+        tempStatus: t >= 38 || t < 36 ? 'ABNORMAL' : 'NORMAL',
         heartStatus: h >= 100 || h < 50 ? 'ABNORMAL' : 'NORMAL',
         activityStatus: m.status,
         motion: m.motion,
@@ -247,7 +248,7 @@ export function useBLE() {
       setState(s => ({ ...s, reading, history: [...s.history.slice(-99), reading] }));
     };
     tick();
-    simTimerRef.current = setInterval(tick, 3000);
+    simTimerRef.current = setInterval(tick, 20000);
   }, []);
 
   const stopSimulation = useCallback(() => {
